@@ -24,10 +24,10 @@ return new class extends Migration
             $table->string('address', 512);
             $table->string('phone', 20);
             $table->string('university');
-            $table->int('followers_count')->default(0);
-            $table->int('following_count')->default(0);
+            $table->integer('followers_count')->default(0);
+            $table->integer('following_count')->default(0);
             $table->bigInteger('total_view')->default(0);
-            $table->int('bookmark_count')->default(0);
+            $table->integer('bookmark_count')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
@@ -45,6 +45,12 @@ return new class extends Migration
             $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
+        });
+
+        Schema::create('roles', function (Blueprint $table) {
+            $table->id();
+            $table->enum('role_name', ['admin', 'moderator', 'regular_user'])->default('regular_user');
+            $table->timestamps();
         });
     }
 
