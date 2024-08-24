@@ -1,12 +1,10 @@
 services:
     api.viblo.clone:
         build:
-            context: ./vendor/laravel/sail/runtimes/8.3
+            context: ./docker/8.3
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        ports:
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         image: sail-8.3/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
@@ -26,6 +24,15 @@ services:
             - phpmyadmin
             - mailpit
             - redis
+    viblo.clone:
+        build:
+            context: ../viblo.clone
+            dockerfile: ../viblo.clone/Dockerfile
+        image: viblo-clone
+        ports:
+            - '5173:5173'
+        networks:
+            - sail
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -39,7 +46,7 @@ services:
             MYSQL_ALLOW_EMPTY_PASSWORD: 1
         volumes:
             - 'sail-mysql:/var/lib/mysql'
-            - './vendor/laravel/sail/database/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
+            - './docker/mysql/create-testing-database.sh:/docker-entrypoint-initdb.d/10-create-testing-database.sh'
         networks:
             - sail
         healthcheck:
@@ -103,14 +110,18 @@ services:
             timeout: 5s
     nginx:
         image: 'nginx:latest'
+        restart: unless-stopped
         ports:
             - '80:80'
+            - '443:443'
         volumes:
             - './nginx.conf:/etc/nginx/conf.d/default.conf'
+            - './ssl:/etc/nginx/ssl'
         networks:
             - sail
         depends_on:
             - api.viblo.clone
+            - viblo.clone
             - minio
             - mailpit
             - redis
