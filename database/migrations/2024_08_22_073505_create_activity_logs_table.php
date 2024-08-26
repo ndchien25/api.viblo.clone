@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('activity_log', function (Blueprint $table) {
+        Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id');
             $table->enum('action_type', ['follow', 'vote', 'comment', 'post']);
-            $table->enum('target_type', ['user', 'post', 'comment', 'series', 'organization']);
+            $table->enum('target_type', ['user', 'post', 'comment', 'serie', 'organization']);
             $table->bigInteger('target_id')->nullable();
             $table->timestamps();
         });
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('activity_log');
+        Schema::dropIfExists('activity_logs');
     }
 };

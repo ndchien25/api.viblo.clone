@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => bcrypt('password'), // or Hash::make('password')
             'avatar' => $this->faker->imageUrl,
-            'role_id' => $this->faker->numberBetween(1, 10),
+            'role_id' => Role::inRandomOrder()->first()->id,
             'address' => $this->faker->address,
             'phone' => $this->faker->phoneNumber,
             'university' => $this->faker->word,
@@ -40,6 +40,8 @@ class UserFactory extends Factory
             'total_view' => $this->faker->numberBetween(0, 10000),
             'bookmark_count' => $this->faker->numberBetween(0, 100),
             'remember_token' => Str::random(10),
+            'created_at' => now(),
+            'updated_at' => now()
         ];
     }
 }

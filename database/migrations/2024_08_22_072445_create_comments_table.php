@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigInteger('post_id');
             $table->enum('type',['post', 'question'])->default('post');
             $table->mediumText('content');
-            $table->bigInteger('parent_id');
+            $table->bigInteger('parent_id')->nullable();
             $table->integer('row_count')->default(0);
             $table->timestamps();
         });
