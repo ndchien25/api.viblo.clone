@@ -18,7 +18,7 @@ class OrganizationUserSeeder extends Seeder
 
         foreach ($users as $user) {
             $organization = $organizations->random();
-            DB::table('organization_user')->insert([
+            DB::table('organization_users')->insert([
                 'organ_id' => $organization->id,
                 'user_id' => $user->id,
                 'role' => $faker->randomElement(['admin', 'member']),
