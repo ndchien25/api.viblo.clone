@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_following', function (Blueprint $table) {
+        Schema::create('user_followings', function (Blueprint $table) {
             $table->bigInteger('follower_id');
             $table->bigInteger('followed_id');
             $table->primary(['follower_id', 'followed_id']);
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_following');
+        Schema::dropIfExists('user_followings');
     }
 };
