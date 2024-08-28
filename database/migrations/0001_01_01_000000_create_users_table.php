@@ -20,10 +20,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('avatar')->nullable();
-            $table->bigInteger('role_id');
-            $table->string('address', 512);
-            $table->string('phone', 20);
-            $table->string('university');
+            $table->bigInteger('role_id')->default(3);
+            $table->string('address', 512)->nullable();
+            $table->string('phone', 20)->nullable();
+            $table->string('university')->nullable();
             $table->integer('followers_count')->default(0);
             $table->integer('following_count')->default(0);
             $table->bigInteger('total_view')->default(0);
