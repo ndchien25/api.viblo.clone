@@ -27,35 +27,19 @@ class AuthService extends BaseService
 
         $credentials = [$fieldType => $emailOrUsername, 'password' => $password];
 
-        if (!Auth::attempt($credentials)) {
-            return [
-                'error' => true,
-                'message' => 'Wrong email/username or password'
-            ];
-        }
-
-        $user = Auth::user();
-
-        if ($user instanceof User) {
-            $tokenResult = $user->createToken('authToken', ['*'], now()->addDay())->plainTextToken;
+        if (Auth::attempt($credentials)) {
             return [
                 'error' => false,
-                'access_token' => $tokenResult,
-                'token_type' => 'Bearer',
+                'message' => 'Login successful!',
+            ];
+        } else {
+            return [
+                'error' => true,
+                'message' => 'Wrong email/username or password!',
             ];
         }
-
-        return [
-            'error' => true,
-            'message' => 'Unauthorized'
-        ];
     }
 
-    /**
-     * Handler User Register
-     * @param array $credentials
-     * @return mixed
-     */
     public function register($payload = []): array
     {
         $payload['password'] = bcrypt($payload['password']);
@@ -73,7 +57,7 @@ class AuthService extends BaseService
             $payload['email'],
         );
         return $status === Password::RESET_LINK_SENT
-                ? back()->with(['status' => __($status)])
-                : back()->withErrors(['email' => __($status)]);
+            ? back()->with(['status' => __($status)])
+            : back()->withErrors(['email' => __($status)]);
     }
 }

@@ -4,12 +4,13 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\AuthService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
-{   
+{
     protected $authService;
 
     public function __construct(AuthService $authService)
@@ -35,15 +36,17 @@ class AuthController extends Controller
 
         $response = $this->authService->login($emailOrUsername, $password);
 
-        return response()->json($response, $response['error'] ? Response::HTTP_UNAUTHORIZED : Response::HTTP_OK); 
+        return response()->json($response, $response['error'] ? Response::HTTP_UNAUTHORIZED : Response::HTTP_OK);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Handler User Register
+     * @param array $credentials
+     * @return mixed
      */
     public function register(Request $request): JsonResponse
     {
-       $request->validate([
+        $request->validate([
             'username' => 'required|unique:users,username',
             'email' => 'required|email|unique:users,email',
             'display_name' => 'required',
@@ -52,7 +55,7 @@ class AuthController extends Controller
         ]);
 
         $success = $this->authService->register($request->all());
-        
+
         return response()->json($success, Response::HTTP_OK);
     }
 
@@ -64,8 +67,18 @@ class AuthController extends Controller
         $request->validate(['email' => 'required|email']);
     }
 
-    public function reset_password(Request $request)
-    {
+    public function reset_password(Request $request) {}
 
+    /**
+     * Logout user
+     */
+    public function logout()
+    {
+        Auth::logout(); // For session-based authentication
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Successfully logged out!',
+        ]);
     }
 }
