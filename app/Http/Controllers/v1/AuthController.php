@@ -7,6 +7,7 @@ use App\Http\Services\AuthService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
@@ -27,8 +28,8 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $request->validate([
-            'email_or_username' => 'required',
-            'password' => 'required'
+            'email_or_username' => 'required|string',
+            'password' => 'required|string'
         ]);
 
         $emailOrUsername = $request->input('email_or_username');
@@ -47,11 +48,11 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         $request->validate([
-            'username' => 'required|unique:users,username',
+            'username' => 'required|string|unique:users,username',
             'email' => 'required|email|unique:users,email',
-            'display_name' => 'required',
-            'password' => 'required|min:8',
-            'c_password' => 'required|same:password',
+            'display_name' => 'required|string',
+            'password' => 'required|string|min:8',
+            'c_password' => 'required|string|same:password',
         ]);
 
         $success = $this->authService->register($request->all());
@@ -62,20 +63,43 @@ class AuthController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function forgot_password(Request $request)
+    public function sendResetLinkEmail(Request $request)
     {
         $request->validate(['email' => 'required|email']);
+        $status = $this->authService->sendResetLinkEmail($request->only('email'));
+        
+        return $status === Password::RESET_LINK_SENT ? response()->json([
+            'message' => __($status)
+        ], Response::HTTP_OK) : response()->json([
+            'message' => __($status)
+        ], Response::HTTP_BAD_REQUEST);
     }
 
-    public function reset_password(Request $request) {}
+    public function reset_password(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => 'required|string',
+            'c_password' => 'required|string|same:password'
+        ]);
+
+        $status = $this->authService->resetPassword($request->only('email', 'password', 'c_password', 'token'));
+
+        return $status === Password::RESET_LINK_SENT ? response()->json([
+            'message' => __($status)
+        ], Response::HTTP_OK) : response()->json([
+            'message' => __($status)
+        ], Response::HTTP_BAD_REQUEST);
+    }
 
     /**
      * Logout user
      */
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::logout(); // For session-based authentication
-
+        Auth::guard('web')->logout();
+ 
         return response()->json([
             'error' => false,
             'message' => 'Successfully logged out!',

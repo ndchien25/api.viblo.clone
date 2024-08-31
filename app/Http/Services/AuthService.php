@@ -4,8 +4,10 @@ namespace App\Http\Services;
 
 use App\Models\User;
 use App\Repositories\User\UserRepository;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 
 class AuthService extends BaseService
 {
@@ -16,11 +18,6 @@ class AuthService extends BaseService
         $this->userRepository = $userRepository;
     }
 
-    /**
-     * Handler User Login
-     * @param array $credentials
-     * @return mixed
-     */
     public function login($emailOrUsername = '', $password = ''): array
     {
         $fieldType = filter_var($emailOrUsername, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
@@ -28,14 +25,24 @@ class AuthService extends BaseService
         $credentials = [$fieldType => $emailOrUsername, 'password' => $password];
 
         if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            if (!$user->email_verified_at) {
+                return [
+                    'error' => true,
+                    'message' => 'Email not verified!',
+                    'verified' => false,
+                ];
+            }
             return [
                 'error' => false,
                 'message' => 'Login successful!',
+                'verified' => true,
             ];
         } else {
             return [
                 'error' => true,
                 'message' => 'Wrong email/username or password!',
+                'verified' => true,
             ];
         }
     }
@@ -43,21 +50,30 @@ class AuthService extends BaseService
     public function register($payload = []): array
     {
         $payload['password'] = bcrypt($payload['password']);
-        $user = User::create($payload);
-        $success['token'] =  $user->createToken('authToken')->plainTextToken;
+        $user = $this->userRepository->create($payload);
+        event(new Registered($user));
         $success['display_name'] =  $user->display_name;
         $success['username'] = $user->username;
 
         return $success;
     }
 
-    public function forgot_password($payload = [])
+    public function sendResetLinkEmail($payload = [])
     {
-        $status = Password::sendResetLink(
-            $payload['email'],
+        return Password::sendResetLink($payload);
+    }
+
+    public function resetPassword($payload = [])
+    {
+        $status = Password::reset(
+            $payload,
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => bcrypt($password),
+                ])->setRememberToken(Str::random(60));
+                $user->save();
+            }
         );
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with(['status' => __($status)])
-            : back()->withErrors(['email' => __($status)]);
+        return $status;
     }
 }
