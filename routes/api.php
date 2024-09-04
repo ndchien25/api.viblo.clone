@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/forgot-password' , [AuthController::class, 'sendResetLinkEmail']);
+    Route::post('/forgot-password' , [AuthController::class, 'sendResetLinkEmail'])->middleware('throttle:1, 1');
     Route::post('/reset-password', [AuthController::class, 'reset_password'])->name('password.reset');
 
     // Verify email
@@ -17,10 +17,7 @@ Route::prefix('v1')->group(function () {
         ->name('verification.verify');
 
     // Resend link to verify email
-    Route::post('/email/verify/resend', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
-        return back()->with('message', 'Verification link sent!');
-    })->middleware(['throttle:6,1'])->name('verification.send');
+    Route::post('/email/verify/resend', [VerifyEmailController::class, 'resendVerificationEmail'])->middleware(['throttle:6,1'])->name('verification.send');
 
     Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);

@@ -3,7 +3,7 @@
 namespace App\Http\Services;
 
 use App\Models\User;
-use App\Repositories\User\UserRepository;
+use App\Repositories\User\IUserRepository;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
@@ -11,12 +11,7 @@ use Illuminate\Support\Str;
 
 class AuthService extends BaseService
 {
-    protected $userRepository;
-
-    public function __construct(UserRepository $userRepository)
-    {
-        $this->userRepository = $userRepository;
-    }
+    public function __construct(protected IUserRepository $userRepository){}
 
     public function login($emailOrUsername = '', $password = ''): array
     {
@@ -26,7 +21,7 @@ class AuthService extends BaseService
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            if (!$user->email_verified_at) {
+            if (!$user->hasVerifiedEmail()) {
                 return [
                     'error' => true,
                     'message' => 'Email not verified!',
@@ -52,9 +47,8 @@ class AuthService extends BaseService
         $payload['password'] = bcrypt($payload['password']);
         $user = $this->userRepository->create($payload);
         event(new Registered($user));
-        $success['display_name'] =  $user->display_name;
         $success['username'] = $user->username;
-
+        $success['email'] = $user->email;
         return $success;
     }
 
