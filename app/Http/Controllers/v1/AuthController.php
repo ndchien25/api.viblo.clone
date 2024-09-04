@@ -28,8 +28,8 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $request->validate([
-            'email_or_username' => 'required|string',
-            'password' => 'required|string'
+            'email_or_username' => 'required|string|max:50',
+            'password' => 'required|string|max:50'
         ]);
 
         $emailOrUsername = $request->input('email_or_username');
@@ -48,11 +48,11 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         $request->validate([
-            'username' => 'required|string|unique:users,username',
+            'username' => 'required||unique:users,username|max: 20',
             'email' => 'required|email|unique:users,email',
-            'display_name' => 'required|string',
-            'password' => 'required|string|min:8',
-            'c_password' => 'required|string|same:password',
+            'display_name' => 'required|string|alpha|max:50',
+            'password' => 'required|string|min:8|max:50',
+            'c_password' => 'required|string|same:password|max:50',
         ]);
 
         $success = $this->authService->register($request->all());
@@ -65,7 +65,7 @@ class AuthController extends Controller
      */
     public function sendResetLinkEmail(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
+        $request->validate(['email' => 'required|email|exists:users,email']);
         $status = $this->authService->sendResetLinkEmail($request->only('email'));
         
         return $status === Password::RESET_LINK_SENT ? response()->json([
@@ -80,8 +80,8 @@ class AuthController extends Controller
         $request->validate([
             'token' => 'required|string',
             'email' => 'required|email',
-            'password' => 'required|string',
-            'c_password' => 'required|string|same:password'
+            'password' => 'required|string|max:50',
+            'c_password' => 'required|string|same:password|'
         ]);
 
         $status = $this->authService->resetPassword($request->only('email', 'password', 'c_password', 'token'));
