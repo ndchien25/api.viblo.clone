@@ -30,4 +30,10 @@ class Post extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Define the many-to-many relationship with Tag
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'post_tags');
+    }
 }
