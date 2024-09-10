@@ -28,10 +28,6 @@ class PostController extends Controller
         $validated = $request->only(['title', 'content', 'tags']);
         $post = $this->postService->createPost($validated);
         if ($post) {
-            $tagIds = array_column($validated['tags'], 'id');
-
-            $post->tags()->sync($tagIds);
-
             return response()->json([
                 'message' => 'Bài viết được tạo thành công!!',
             ], Response::HTTP_CREATED);
@@ -45,9 +41,14 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $slug)
     {
-        //
+        $validatedData = validator(['slug' => $slug], [
+            'slug' => 'required|string|regex:/^[a-z0-9-]+$/|exists:posts,slug',
+        ])->validate();
+    
+        $post = $this->postService->getPostBySlug($slug);
+        return response()->json($post);
     }
 
     /**

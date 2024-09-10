@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
-use App\Repositories\User\IUserRepository;
+use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,11 +11,9 @@ use Illuminate\Http\Response;
 
 class VerifyEmailController extends Controller
 {
-    public function __construct(protected IUserRepository $userRepository) {}
-
     public function __invoke(Request $request): RedirectResponse
     {
-        $user = $this->userRepository->findOrFail($request->route('id'));
+        $user =  User::findOrFail($request->route('id'));
 
         if ($user->hasVerifiedEmail()) {
             return redirect(env('FRONTEND_URL'));
@@ -33,7 +31,7 @@ class VerifyEmailController extends Controller
             'email' => 'required|email|exists:users,email',
         ]);
 
-        $user = $this->userRepository->findByField("email", $request->only('email'));
+        $user = User::where('email', $request->only('email'))->firstOrFail();
         if (!$user->hasVerifiedEmail()) {
             // Send verification email
             $user->sendEmailVerificationNotification();

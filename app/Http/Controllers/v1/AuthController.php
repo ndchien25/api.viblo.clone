@@ -11,11 +11,12 @@ use App\Http\Services\AuthService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-    public function __construct(private AuthService $authService){}
+    public function __construct(private AuthService $authService) {}
 
     /**
      * Attempt to authenticate the user.
@@ -77,5 +78,13 @@ class AuthController extends Controller
             'error' => false,
             'message' => 'Successfully logged out!',
         ]);
+    }
+
+    /**
+     * get user
+     */
+    public function me(Request $request): JsonResponse
+    {
+        return response()->json(['authenticated' => true, 'user' => $request->user()]);
     }
 }

@@ -14,10 +14,20 @@ class PostService extends BaseService
         $post = Post::create([
             'title'   => $payload['title'],
             'content' => $payload['content'],
-            'slug'    => Str::slug($payload['title']).'-'.$uniqueString,
+            'slug'    => Str::slug($payload['title']) . '-' . $uniqueString,
             'user_id' => Auth::user()->id
         ]);
-        
+        if ($post) {
+            $tagIds = array_column($payload['tags'], 'id');
+
+            $post->tags()->sync($tagIds);
+        }
         return $post ?? $post;
+    }
+
+    public function getPostBySlug(string $slug = '')
+    {
+        $post = Post::with('tags')->where('slug', $slug)->firstOrFail();
+        return $post;
     }
 }

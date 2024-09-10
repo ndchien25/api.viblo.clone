@@ -4,34 +4,47 @@ use App\Http\Controllers\v1\AuthController;
 use App\Http\Controllers\v1\PostController;
 use App\Http\Controllers\v1\TagController;
 use App\Http\Controllers\v1\VerifyEmailController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-    Route::post('/login', [AuthController::class, 'login'])->name('login');
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/forgot-password' , [AuthController::class, 'sendResetLinkEmail'])->middleware('throttle:1, 1');
-    Route::post('/reset-password', [AuthController::class, 'reset_password'])->name('password.reset');
+    // Authentication Routes
+    Route::controller(AuthController::class)->group(function () {
+        Route::post('/login', 'login')->name('login');
+        Route::post('/register', 'register');
+        Route::post('/forgot-password', 'sendResetLinkEmail')->middleware('throttle:1, 1');
+        Route::post('/reset-password', 'reset_password')->name('password.reset');
+        Route::post('/logout', 'logout')->middleware('auth:middleware');
+        Route::get('/me', 'me')->middleware('auth:sanctum');
+    });
 
-    // Verify email
-    Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('verification.verify');
+    // Email Verification Routes
+    Route::prefix('email/verify')->group(function () {
+        Route::get('/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
+            ->middleware(['signed', 'throttle:6,1'])
+            ->name('verification.verify');
+        Route::post('/resend', [VerifyEmailController::class, 'resendVerificationEmail'])
+            ->middleware(['throttle:6,1'])
+            ->name('verification.send');
+    });
 
-    // Resend link to verify email
-    Route::post('/email/verify/resend', [VerifyEmailController::class, 'resendVerificationEmail'])->middleware(['throttle:6,1'])->name('verification.send');
+    // Post Routes
+    Route::prefix('posts')->group(function () {
+        Route::get('/{slug}', [PostController::class, 'show']);
+        Route::post('/posts', [PostController::class, 'store'])->name('posts.store')->middleware(['auth:sanctum']);
+    });
 
+    // Tags Routes
+    Route::prefix('tags')->group(function () {
+        Route::get('/tags/search', [TagController::class, 'search'])->name('tags.search');
+    });
+
+    // Protected Routes
     Route::middleware(['auth:sanctum'])->group(function () {
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::prefix('/u')->group(function () {
+        // User Routes
+        Route::prefix('users')->group(function () {
             Route::get('/{username}', function ($username) {
                 return response()->json(['username' => $username]);
             })->name('user.profile');
         });
-        Route::get('/user', function (Request $request) {
-            return $request->user();
-        });
-        Route::post('/post', [PostController::class, 'store'])->name('posts.store');
-        Route::get('/tag/search', [TagController::class, 'search'])->name('tags.search');
     });
 });
