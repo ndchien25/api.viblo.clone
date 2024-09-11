@@ -13,6 +13,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Auth\Passwords\CanResetPassword  as CanResetPasswordTrait;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+
 class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
 {
     use HasApiTokens, HasFactory, Notifiable, CanResetPasswordTrait;
@@ -70,7 +72,7 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
      */
     public function sendPasswordResetNotification($token): void
     {
-        $url = env('FRONTEND_URL').'/reset-password?token='.$token.'&email='.$this->email;
+        $url = env('FRONTEND_URL') . '/reset-password?token=' . $token . '&email=' . $this->email;
         $this->notify(new ResetPasswordNotification($url));
     }
 
@@ -130,8 +132,16 @@ class User extends Authenticatable implements MustVerifyEmail, CanResetPassword
         return $this->belongsToMany(User::class, 'user_following', 'followed_id', 'follower_id');
     }
 
-    public function activityLogs()
+    public function activityLogs(): MorphMany
     {
         return $this->morphMany(ActivityLog::class, 'target');
+    }
+
+    /**
+     * Get the votes made by the user.
+     */
+    public function votes(): HasMany
+    {
+        return $this->hasMany(UserVote::class);
     }
 }

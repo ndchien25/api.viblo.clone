@@ -13,7 +13,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/register', 'register');
         Route::post('/forgot-password', 'sendResetLinkEmail')->middleware('throttle:1, 1');
         Route::post('/reset-password', 'reset_password')->name('password.reset');
-        Route::post('/logout', 'logout')->middleware('auth:middleware');
+        Route::post('/logout', 'logout')->middleware('auth:sanctum');
         Route::get('/me', 'me')->middleware('auth:sanctum');
     });
 
@@ -29,8 +29,11 @@ Route::prefix('v1')->group(function () {
 
     // Post Routes
     Route::prefix('posts')->group(function () {
-        Route::get('/{slug}', [PostController::class, 'show']);
-        Route::post('/posts', [PostController::class, 'store'])->name('posts.store')->middleware(['auth:sanctum']);
+        Route::controller(PostController::class)->group(function () {
+            Route::get('/{slug}', 'show')->name('posts.show');
+            Route::post('/posts', 'store')->name('posts.store')->middleware(['auth:sanctum']);
+            Route::post('/{id}/vote', 'vote')->name('posts.vote')->middleware(['auth:sanctum']);
+        });
     });
 
     // Tags Routes

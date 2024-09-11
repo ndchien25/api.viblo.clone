@@ -28,6 +28,19 @@ class PostService extends BaseService
     public function getPostBySlug(string $slug = '')
     {
         $post = Post::with('tags')->where('slug', $slug)->firstOrFail();
-        return $post;
+
+        // Check if the user is authenticated
+        if (Auth::check()) {
+            $userId = Auth::id();
+            $userVote = $post->votes()->where('user_id', $userId)->first();
+            $hasUserVoted = $userVote ? $userVote->vote : null;
+        } else {
+            $hasUserVoted = null;
+        }
+        return [
+            'error' => false,
+            'post' => $post,
+            'user_vote' => $hasUserVoted,
+        ];
     }
 }

@@ -5,12 +5,13 @@ namespace App\Http\Controllers\v1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Services\PostService;
+use App\Http\Services\VoteService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class PostController extends Controller
 {
-    function __construct(private PostService $postService) {}
+    function __construct(private PostService $postService, private VoteService $voteService) {}
 
     /**
      * Display a listing of the resource.
@@ -43,28 +44,28 @@ class PostController extends Controller
      */
     public function show(string $slug)
     {
-        $validatedData = validator(['slug' => $slug], [
+        validator(['slug' => $slug], [
             'slug' => 'required|string|regex:/^[a-z0-9-]+$/|exists:posts,slug',
         ])->validate();
-    
-        $post = $this->postService->getPostBySlug($slug);
-        return response()->json($post);
+
+        $result = $this->postService->getPostBySlug($slug);
+        return response()->json($result, !$result['error'] ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Vote on a post (upvote or downvote).
      */
-    public function edit(string $id)
+    public function vote(Request $request, string $id)
     {
-        //
-    }
+        $validatedData = $request->validate([
+            'vote' => 'required|string|in:up,down,none'
+        ]);
+        $voteType = $validatedData['vote'];
+        $userId = $request->user()->id;
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+        $result = $this->voteService->vote($id, $userId, $voteType);
+
+        return response()->json($result, !$result['error'] ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST);
     }
 
     /**
