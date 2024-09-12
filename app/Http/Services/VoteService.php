@@ -37,10 +37,8 @@ class VoteService
                 'vote' => $voteType
             ]);
 
-            $voteValue = $voteType === 'up' ? 1 : -1;
             return [
                 'error' => false,
-                'vote_value' => $voteValue
             ];
         }
 
@@ -49,10 +47,8 @@ class VoteService
             $post->increment('vote', $userVote->vote === 'up' ? -1 : 1);
             $userVote->delete();
 
-            $voteValue = 0;
             return [
                 'error' => false,
-                'vote_value' => $voteValue
             ];
         }
 
@@ -68,10 +64,8 @@ class VoteService
             // If user is switching their vote
             if ($voteType === 'up' && $userVote->vote === 'down') {
                 $post->increment('vote', 2); // Change from downvote to upvote
-                $voteValue = 1;
             } elseif ($voteType === 'down' && $userVote->vote === 'up') {
                 $post->decrement('vote', 2); // Change from upvote to downvote
-                $voteValue = -1;
             }
 
             // Update the user's vote
@@ -80,7 +74,6 @@ class VoteService
             ]);
             return [
                 'error' => false,
-                'vote_value' => $voteValue
             ];
         }
         return [
