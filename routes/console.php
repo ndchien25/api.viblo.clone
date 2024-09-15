@@ -7,4 +7,4 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-Schedule::command('telescope:prune')->daily();
+Schedule::command('telescope:prune --hours=1')->everyMinute();

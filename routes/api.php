@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\v1\AuthController;
+use App\Http\Controllers\v1\CommentController;
 use App\Http\Controllers\v1\PostController;
 use App\Http\Controllers\v1\TagController;
 use App\Http\Controllers\v1\VerifyEmailController;
@@ -31,14 +32,14 @@ Route::prefix('v1')->group(function () {
     Route::prefix('posts')->group(function () {
         Route::controller(PostController::class)->group(function () {
             Route::get('/{slug}', 'show')->name('posts.show');
-            Route::post('/posts', 'store')->name('posts.store')->middleware(['auth:sanctum']);
+            Route::post('', 'store')->name('posts.store')->middleware(['auth:sanctum']);
             Route::post('/{id}/vote', 'vote')->name('posts.vote')->middleware(['auth:sanctum']);
         });
     });
 
     // Tags Routes
     Route::prefix('tags')->group(function () {
-        Route::get('/tags/search', [TagController::class, 'search'])->name('tags.search');
+        Route::get('/search', [TagController::class, 'search'])->name('tags.search');
     });
 
     // Protected Routes
@@ -48,6 +49,14 @@ Route::prefix('v1')->group(function () {
             Route::get('/{username}', function ($username) {
                 return response()->json(['username' => $username]);
             })->name('user.profile');
+        });
+    });
+
+    // comments route
+    Route::prefix('comments')->group(function() {
+        Route::controller(CommentController:: class)->group(function () {
+            Route::post('', 'store')->name('comments.store');
+            Route::get('{post_id}','show');
         });
     });
 });

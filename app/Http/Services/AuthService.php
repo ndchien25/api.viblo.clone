@@ -14,37 +14,43 @@ class AuthService extends BaseService
     {
         $fieldType = filter_var($emailOrUsername, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $credentials = [$fieldType => $emailOrUsername, 'password' => $password];
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            if (!$user->hasVerifiedEmail()) {
-                return [
-                    'error' => true,
-                    'message' => 'Email not verified!',
-                    'verified' => false,
-                ];
-            }
-            return [
-                'error' => false,
-                'message' => 'Login successful!',
-                'verified' => true,
-            ];
-        } else {
+
+        if (!Auth::attempt($credentials)) {
             return [
                 'error' => true,
                 'message' => 'Wrong email/username or password!',
                 'verified' => true,
             ];
         }
+
+        $user = Auth::user();
+
+        if (!$user->hasVerifiedEmail()) {
+            return [
+                'error' => true,
+                'message' => 'Email not verified!',
+                'verified' => false,
+            ];
+        }
+
+        return [
+            'error' => false,
+            'message' => 'Login successful!',
+            'verified' => true,
+        ];
     }
 
     public function register($payload = []): array
     {
         $payload['password'] = bcrypt($payload['password']);
         $user = User::create($payload);
+        
         event(new Registered($user));
-        $success['username'] = $user->username;
-        $success['email'] = $user->email;
-        return $success;
+        
+        return [
+            'username' => $user->username,
+            'email' => $user->email,
+        ];
     }
 
     public function sendResetLinkEmail($payload = [])
