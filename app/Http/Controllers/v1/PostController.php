@@ -31,6 +31,7 @@ class PostController extends Controller
         if ($post) {
             return response()->json([
                 'message' => 'Bài viết được tạo thành công!!',
+                'slug' => $post->slug
             ], Response::HTTP_CREATED);
         }
 
@@ -49,7 +50,11 @@ class PostController extends Controller
         ])->validate();
 
         $result = $this->postService->getPostBySlug($slug);
-        return response()->json($result, !$result['error'] ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST);
+        if (!$result) {
+            return response()->json('message' => "Lỗi khi tạo bài viết vui lòng thử lại", Response::HTTP_BAD_REQUEST);
+        }
+
+        return response()->json($result, Response::HTTP_OK);
     }
 
     /**

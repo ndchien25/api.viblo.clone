@@ -29,7 +29,6 @@ class PostService extends BaseService
     {
         $post = Post::with('tags')->where('slug', $slug)->firstOrFail();
 
-        // Check if the user is authenticated
         if (Auth::check()) {
             $userId = Auth::id();
             $userVote = $post->votes()->where('user_id', $userId)->first();
@@ -37,8 +36,8 @@ class PostService extends BaseService
         } else {
             $hasUserVoted = null;
         }
+        
         return [
-            'error' => false,
             'post' => $post,
             'user_vote' => $hasUserVoted,
         ];

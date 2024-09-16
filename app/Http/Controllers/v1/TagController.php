@@ -12,9 +12,9 @@ class TagController extends Controller
 
     public function search(Request $request)
     {
-        $query = $request->input('query');
+        $search = $request->input('search');
         
-        $tags = $this->tagServive->searchTag($query);
+        $tags = $this->tagServive->searchTag($search);
 
         return response()->json($tags);
     }

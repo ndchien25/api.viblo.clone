@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCommentRequest;
+use App\Http\Resources\CommentResource;
 use Illuminate\Http\Request;
 use App\Http\Services\CommentService;
 use App\Models\Comment;
@@ -27,15 +28,13 @@ class CommentController extends Controller
     {
         $validated = $request->only(['post_id', 'type', 'content', 'parent_id']);
         $comment = $this->commentService->createComment($validated);
-        if ($comment) {
-            return response()->json([
-                'message' => 'Comment thành công bài viết thành công!!',
-            ], Response::HTTP_CREATED);
+        if (!$comment) {
+            return response()->json([], Response::HTTP_BAD_REQUEST);
         }
 
         return response()->json([
-            "message" => "Lỗi không tạo comment. Vui lòng thử lại"
-        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            'comment' => new CommentResource($comment)
+        ], Response::HTTP_CREATED);
     }
 
     /**

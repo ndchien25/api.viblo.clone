@@ -19,9 +19,9 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['https://viblo.clone', 'https://api.viblo.clone'],
 
-    'allowed_origins_patterns' => ['https://viblo.clone'],
+    'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
 
