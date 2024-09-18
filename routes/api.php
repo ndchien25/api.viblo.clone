@@ -32,6 +32,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('posts')->group(function () {
         Route::controller(PostController::class)->group(function () {
             Route::get('/{slug}', 'show');
+            Route::get('', 'index');
             Route::post('', 'store')->middleware(['auth:sanctum']);
             Route::post('/{id}/vote', 'vote')->middleware(['auth:sanctum']);
         });

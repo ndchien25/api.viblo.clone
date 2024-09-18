@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostRequest;
+use App\Http\Resources\PostResource;
 use App\Http\Services\PostService;
 use App\Http\Services\VoteService;
 use Illuminate\Http\Request;
@@ -16,9 +17,20 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'page' => 'sometimes|integer|min:1',
+            'perPage' => 'sometimes|integer|min:1|max:100',
+        ]);
+
+        $page = $validated['page'] ?? 1;
+        $perPage = $validated['perPage'] ?? 20;
+
+        $posts = $this->postService->getNewest($page, $perPage);
+        $posts->setPath(config('app.url').'/api/v1/posts'); 
+
+        return PostResource::collection($posts);
     }
 
     /**
@@ -48,7 +60,7 @@ class PostController extends Controller
         validator(['slug' => $slug], [
             'slug' => 'required|string|regex:/^[a-z0-9-]+$/|exists:posts,slug',
         ])->validate();
-        
+
         $result = $this->postService->getBySlug($slug);
         if (!$result) {
             return response()->json(['message' => "Lỗi khi tạo bài viết vui lòng thử lại"], Response::HTTP_BAD_REQUEST);

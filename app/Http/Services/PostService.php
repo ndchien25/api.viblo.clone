@@ -43,4 +43,9 @@ class PostService extends BaseService
             'comment_count' => $commentCount,
         ];
     }
+
+    public function getNewest($page = 1, $perPage = 20)
+    {
+        return Post::latest()->with(['user', 'tags'])->withCount('comments')->paginate($perPage, ['*'], 'page', $page);
+    }
 }
