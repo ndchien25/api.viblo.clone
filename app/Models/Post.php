@@ -46,4 +46,9 @@ class Post extends Model
     {
         return $this->hasMany(UserVote::class);
     }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

@@ -27,7 +27,7 @@ class PostController extends Controller
     public function store(StorePostRequest $request)
     {
         $validated = $request->only(['title', 'content', 'tags']);
-        $post = $this->postService->createPost($validated);
+        $post = $this->postService->create($validated);
         if ($post) {
             return response()->json([
                 'message' => 'Bài viết được tạo thành công!!',
@@ -48,10 +48,10 @@ class PostController extends Controller
         validator(['slug' => $slug], [
             'slug' => 'required|string|regex:/^[a-z0-9-]+$/|exists:posts,slug',
         ])->validate();
-
-        $result = $this->postService->getPostBySlug($slug);
+        
+        $result = $this->postService->getBySlug($slug);
         if (!$result) {
-            return response()->json('message' => "Lỗi khi tạo bài viết vui lòng thử lại", Response::HTTP_BAD_REQUEST);
+            return response()->json(['message' => "Lỗi khi tạo bài viết vui lòng thử lại"], Response::HTTP_BAD_REQUEST);
         }
 
         return response()->json($result, Response::HTTP_OK);

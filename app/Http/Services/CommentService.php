@@ -18,7 +18,7 @@ class CommentService extends BaseService
      *                       - 'parent_id' (int|null): The ID of the parent comment if this is a reply.
      * @return Comment The created comment instance.
      */
-    public function createComment($payload = [])
+    public function create($payload = [])
     {
         $comment = Comment::create([...$payload, 'user_id' => Auth::id()]);
         if ($payload['parent_id']) {
@@ -44,7 +44,7 @@ class CommentService extends BaseService
      *                       - 'parent_id' (int|null): The ID of the new parent comment if being changed.
      * @return Comment The updated comment instance.
      */
-    public function updateComment($commentId, $payload = [])
+    public function update($commentId, $payload = [])
     {
         $comment = Comment::findOrFail($commentId);
 
@@ -66,5 +66,26 @@ class CommentService extends BaseService
                 }
             }
         }
+    }
+
+    public function showParent($postId, $page, $perPage)
+    {
+        $comments = Comment::where('post_id', $postId)
+            ->whereNull('parent_id')
+            ->with(['user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return $comments;
+    }
+
+    public function showChild($parentId, $page, $perPage)
+    {
+        $comments = Comment::where('parent_id', $parentId)
+            ->with(['user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        return $comments;
     }
 }

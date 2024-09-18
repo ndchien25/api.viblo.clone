@@ -31,9 +31,9 @@ Route::prefix('v1')->group(function () {
     // Post Routes
     Route::prefix('posts')->group(function () {
         Route::controller(PostController::class)->group(function () {
-            Route::get('/{slug}', 'show')->name('posts.show');
-            Route::post('', 'store')->name('posts.store')->middleware(['auth:sanctum']);
-            Route::post('/{id}/vote', 'vote')->name('posts.vote')->middleware(['auth:sanctum']);
+            Route::get('/{slug}', 'show');
+            Route::post('', 'store')->middleware(['auth:sanctum']);
+            Route::post('/{id}/vote', 'vote')->middleware(['auth:sanctum']);
         });
     });
 
@@ -53,10 +53,11 @@ Route::prefix('v1')->group(function () {
     });
 
     // comments route
-    Route::prefix('comments')->group(function() {
-        Route::controller(CommentController:: class)->group(function () {
-            Route::post('', 'store')->name('comments.store');
-            Route::get('{post_id}','show');
+    Route::prefix('comments')->group(function () {
+        Route::controller(CommentController::class)->group(function () {
+            Route::post('', 'store')->middleware('auth:sanctum');
+            Route::get('/{postId}', 'showParent');
+            Route::get('/replies/{parentId}', 'showChild');
         });
     });
 });

@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class PostService extends BaseService
 {
-    public function createPost($payload = [])
+    public function create($payload = [])
     {
         $uniqueString = substr(bin2hex(random_bytes(4)), 0, 8);
         $post = Post::create([
@@ -25,10 +25,10 @@ class PostService extends BaseService
         return $post ?? $post;
     }
 
-    public function getPostBySlug(string $slug = '')
+    public function getBySlug(string $slug = '')
     {
-        $post = Post::with('tags')->where('slug', $slug)->firstOrFail();
-
+        $post = Post::with(['tags', 'user', 'comments'])->where('slug', $slug)->firstOrFail();
+        $post->increment('view_count');
         if (Auth::check()) {
             $userId = Auth::id();
             $userVote = $post->votes()->where('user_id', $userId)->first();
@@ -36,10 +36,11 @@ class PostService extends BaseService
         } else {
             $hasUserVoted = null;
         }
-        
+        $commentCount = $post->comments()->count();
         return [
             'post' => $post,
             'user_vote' => $hasUserVoted,
+            'comment_count' => $commentCount,
         ];
     }
 }
