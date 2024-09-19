@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\v1\AuthController;
 use App\Http\Controllers\v1\CommentController;
+use App\Http\Controllers\v1\MediaController;
 use App\Http\Controllers\v1\PostController;
 use App\Http\Controllers\v1\TagController;
 use App\Http\Controllers\v1\VerifyEmailController;
@@ -61,4 +62,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/replies/{parentId}', 'showChild');
         });
     });
+
+    Route::post('/upload', [MediaController::class, 'upload'])->middleware('auth:sanctum');
+    Route::get('/get-object', [MediaController::class, 'getObject']);
 });
