@@ -7,6 +7,8 @@ use App\Http\Requests\StoreCommentRequest;
 use App\Http\Resources\CommentResource;
 use Illuminate\Http\Request;
 use App\Http\Services\CommentService;
+use App\Models\Comment;
+use Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class CommentController extends Controller
@@ -67,6 +69,24 @@ class CommentController extends Controller
      */
     public function update(Request $request, string $id) 
     {
+        $validated = $request->validate([
+            'content' => 'required|string',
+        ]);
+
+        $comment = Comment::find($id);
+        if (!$comment) {
+            return response()->json(['message' => 'Comment not found.'], Response::HTTP_NOT_FOUND);
+        }
+
+        if ($comment->user_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized action.'], Response::HTTP_UNAUTHORIZED);
+        }
+        $comment->content = $validated['content'];
+        $comment->save();
+        $comment->load('user');
+        return response()->json([
+            'comment' => new CommentResource($comment)
+        ], Response::HTTP_CREATED);
     }
 
     /**

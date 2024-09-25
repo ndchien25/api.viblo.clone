@@ -5,6 +5,7 @@ use App\Http\Controllers\v1\CommentController;
 use App\Http\Controllers\v1\MediaController;
 use App\Http\Controllers\v1\PostController;
 use App\Http\Controllers\v1\TagController;
+use App\Http\Controllers\v1\UserController;
 use App\Http\Controllers\v1\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +59,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('comments')->group(function () {
         Route::controller(CommentController::class)->group(function () {
             Route::post('', 'store')->middleware('auth:sanctum');
+            Route::put('{id}', 'update')->middleware('auth:sanctum');
             Route::get('/{postId}', 'showParent');
             Route::get('/replies/{parentId}', 'showChild');
         });
@@ -65,4 +67,12 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/upload', [MediaController::class, 'upload'])->middleware('auth:sanctum');
     Route::get('/get-object', [MediaController::class, 'getObject']);
+
+    Route::middleware(['admin'])->group(function () {
+        Route::prefix('admin')->group(function () {
+            Route::controller(UserController::class)->group(function () {
+                Route::get('user', 'index');
+            });
+        });
+    });
 });

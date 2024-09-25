@@ -37,6 +37,7 @@ class AuthService extends BaseService
             'error' => false,
             'message' => 'Login successful!',
             'verified' => true,
+            'user' => Auth::user()
         ];
     }
 
