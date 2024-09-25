@@ -14,15 +14,29 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @OA\Tag(
+ *     name="Authentication",
+ *     description="API endpoints for user authentication"
+ * )
+ */
 class AuthController extends Controller
 {
     public function __construct(private AuthService $authService) {}
 
     /**
-     * Attempt to authenticate the user.
-     * @param  string  $emailOrUsername
-     * @param  string  $password
-     * @return array
+     * @OA\Post(
+     *     path="/api/v1/login",
+     *     summary="User login",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *          required=true,
+     *              @OA\JsonContent(ref="#/components/schemas/LoginRequest")
+     *     ),
+     *     @OA\Response(response=200, description="Login successful", @OA\JsonContent()),
+     *     @OA\Response(response=401, description="Unauthorized", @OA\JsonContent()),
+     *     @OA\Response(response=422, description="Invalid Input", @OA\JsonContent()),
+     * )
      */
     public function login(LoginRequest $request): JsonResponse
     {
@@ -34,9 +48,17 @@ class AuthController extends Controller
     }
 
     /**
-     * Handler User Register
-     * @param array $credentials
-     * @return mixed
+     * @OA\Post(
+     *     path="/api/v1/register",
+     *     summary="User registration",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/RegisterRequest")
+     *     ),
+     *     @OA\Response(response=201, description="User registered successfully", @OA\JsonContent()),
+     *     @OA\Response(response=422, description="Invalid Input", @OA\JsonContent()),
+     * )
      */
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -45,7 +67,23 @@ class AuthController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/v1/forgot-password",
+     *     summary="Send reset link email",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             required={"email"},
+     *             @OA\Property(property="email", type="string", format="email", example="nona.upton@example.org")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Reset link sent", @OA\JsonContent()),
+     *     @OA\Response(response=400, description="Bad Request", @OA\JsonContent()),
+     *     @OA\Response(response=422, description="Invalid email", @OA\JsonContent()),
+     *     @OA\Response(response=429, description="Many Request", @OA\JsonContent()),
+     * )
      */
     public function sendResetLinkEmail(SendResetLinkEmailRequest $request): JsonResponse
     {
@@ -58,6 +96,20 @@ class AuthController extends Controller
         ], Response::HTTP_BAD_REQUEST);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/v1/reset-password",
+     *     summary="Reset user password",
+     *     tags={"Authentication"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ResetPasswordRequest")
+     *     ),
+     *     @OA\Response(response=200, description="Password reset successfully"),
+     *     @OA\Response(response=400, description="Bad Request"),
+     *     @OA\Response(response=422, description="Invalid input"),
+     * )
+     */
     public function reset_password(ResetPasswordRequest $request): JsonResponse
     {
         $status = $this->authService->resetPassword($request->only('email', 'password', 'c_password', 'token'));
@@ -69,7 +121,13 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout user
+     * @OA\Post(
+     *     path="/api/v1/logout",
+     *     summary="Logout user",
+     *     tags={"Authentication"},
+     *     @OA\Response(response=200, description="Successfully logged out", @OA\JsonContent()),
+     *     @OA\Response(response=401, description="Unauthorized", @OA\JsonContent()),
+     * )
      */
     public function logout(Request $request): JsonResponse
     {
@@ -84,7 +142,13 @@ class AuthController extends Controller
     }
 
     /**
-     * get user
+     * @OA\Get(
+     *     path="/api/v1/me",
+     *     summary="Get authenticated user",
+     *     tags={"Authentication"},
+     *     @OA\Response(response=200, description="Authenticated user data",@OA\JsonContent()),
+     *     @OA\Response(response=401, description="Unauthorized", @OA\JsonContent()),
+     * )
      */
     public function me(Request $request): JsonResponse
     {

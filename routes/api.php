@@ -71,7 +71,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['admin'])->group(function () {
         Route::prefix('admin')->group(function () {
             Route::controller(UserController::class)->group(function () {
-                Route::get('user', 'index');
+                Route::get('users', 'index');
             });
         });
     });
