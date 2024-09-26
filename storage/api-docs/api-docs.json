@@ -244,6 +244,312 @@
                 }
             }
         },
+        "/api/v1/posts/{postId}/comments": {
+            "get": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Get parent comments for a post",
+                "operationId": "5da4f14d58175282d7bd4e841a16e212",
+                "parameters": [
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "description": "The ID of the post",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of comments per page",
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Parent comments fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "comments": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CommentResource"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer"
+                                        },
+                                        "total_pages": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid Input",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Create a new comment",
+                "operationId": "e750cd43bc1bf26eee7c72e6d14cb407",
+                "parameters": [
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "description": "The ID of the post",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreCommentRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Comment created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommentResource"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid Input",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/posts/{postId}/comments/{parentId}/replies": {
+            "get": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Get child comments for a parent comment",
+                "operationId": "36396823cdaafc46483787afb2797f15",
+                "parameters": [
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "description": "The ID of the post comment",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "parentId",
+                        "in": "path",
+                        "description": "The ID of the parent comment",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of comments per page",
+                        "schema": {
+                            "type": "integer",
+                            "default": 3
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Child comments fetched successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "comments": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/CommentResource"
+                                            }
+                                        },
+                                        "current_page": {
+                                            "type": "integer"
+                                        },
+                                        "total_pages": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid Input",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/posts/{postId}/comments/{id}": {
+            "put": {
+                "tags": [
+                    "Comments"
+                ],
+                "summary": "Update a comment",
+                "operationId": "aae0b905089acf7b6930ed6c683c07f6",
+                "parameters": [
+                    {
+                        "name": "postId",
+                        "in": "path",
+                        "description": "ID of the post",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the comment to be updated",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "content": {
+                                        "description": "Updated content of the comment",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Comment updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CommentResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Comment not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid Input",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/admin/users": {
             "get": {
                 "tags": [
@@ -344,6 +650,180 @@
                     }
                 },
                 "type": "object"
+            },
+            "StoreCommentRequest": {
+                "required": [
+                    "post_id",
+                    "type",
+                    "content"
+                ],
+                "properties": {
+                    "post_id": {
+                        "description": "ID of the post",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "type": {
+                        "description": "Type of comment",
+                        "type": "string",
+                        "enum": [
+                            "post",
+                            "question"
+                        ],
+                        "example": "post"
+                    },
+                    "content": {
+                        "description": "Content of the comment",
+                        "type": "string",
+                        "example": "This is a sample comment."
+                    },
+                    "parent_id": {
+                        "description": "ID of the parent comment (if it's a reply)",
+                        "type": "integer",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CommentResource": {
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier of the comment",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "post_id": {
+                        "description": "The ID of the associated post",
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "user_id": {
+                        "description": "The ID of the user who made the comment",
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "content": {
+                        "description": "The content of the comment",
+                        "type": "string",
+                        "example": "This is a sample comment."
+                    },
+                    "type": {
+                        "description": "The type of comment",
+                        "type": "string",
+                        "enum": [
+                            "post",
+                            "question"
+                        ],
+                        "example": "post"
+                    },
+                    "row_count": {
+                        "description": "The row count of the comment",
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "parent_id": {
+                        "description": "The ID of the parent comment if this is a reply",
+                        "type": "integer",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "The date and time when the comment was created",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-09-25T12:34:56"
+                    },
+                    "updated_at": {
+                        "description": "The date and time when the comment was last updated",
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-09-25T12:34:56"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResource"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResource": {
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier of the user",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "username": {
+                        "description": "The username of the user",
+                        "type": "string",
+                        "example": "john_doe"
+                    },
+                    "display_name": {
+                        "description": "The display name of the user",
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "fullname": {
+                        "description": "The full name of the user",
+                        "type": "string",
+                        "example": "Johnathan Doe"
+                    },
+                    "email": {
+                        "description": "The email address of the user",
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "avatar": {
+                        "description": "The URL of the user's avatar",
+                        "type": "string",
+                        "example": "https://example.com/avatar/john_doe.jpg"
+                    },
+                    "role_id": {
+                        "description": "The role ID of the user",
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "address": {
+                        "description": "The address of the user",
+                        "type": "string",
+                        "example": "123 Main St, Springfield",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "description": "The phone number of the user",
+                        "type": "string",
+                        "example": "+1234567890",
+                        "nullable": true
+                    },
+                    "university": {
+                        "description": "The university of the user",
+                        "type": "string",
+                        "example": "Springfield University",
+                        "nullable": true
+                    },
+                    "followers_count": {
+                        "description": "The number of followers the user has",
+                        "type": "integer",
+                        "example": 100
+                    },
+                    "following_count": {
+                        "description": "The number of users the user is following",
+                        "type": "integer",
+                        "example": 50
+                    },
+                    "total_view": {
+                        "description": "The total view count for the user's content",
+                        "type": "integer",
+                        "example": 1500
+                    },
+                    "bookmark_count": {
+                        "description": "The number of bookmarks the user has",
+                        "type": "integer",
+                        "example": 25
+                    }
+                },
+                "type": "object"
             }
         }
     },
@@ -351,6 +831,10 @@
         {
             "name": "Authentication",
             "description": "API endpoints for user authentication"
+        },
+        {
+            "name": "Comments",
+            "description": "API endpoints for managing comments"
         },
         {
             "name": "Users",

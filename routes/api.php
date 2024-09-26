@@ -56,12 +56,12 @@ Route::prefix('v1')->group(function () {
     });
 
     // comments route
-    Route::prefix('comments')->group(function () {
+    Route::prefix('posts/{postId}/comments')->group(function () {
         Route::controller(CommentController::class)->group(function () {
             Route::post('', 'store')->middleware('auth:sanctum');
             Route::put('{id}', 'update')->middleware('auth:sanctum');
-            Route::get('/{postId}', 'showParent');
-            Route::get('/replies/{parentId}', 'showChild');
+            Route::get('', 'showParent');
+            Route::get('/{parentId}/replies', 'showChild');
         });
     });
 
