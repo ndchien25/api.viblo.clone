@@ -10,12 +10,26 @@ use App\Http\Services\VoteService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @OA\Tag(
+ *     name="Posts",
+ *     description="API endpoints for manage post"
+ * )
+ */
 class PostController extends Controller
 {
     function __construct(private PostService $postService, private VoteService $voteService) {}
 
-    /**
-     * Display a listing of the resource.
+    /** @OA\Get(
+     *      path="/api/v1/posts", 
+     *      summary="Get list of posts", 
+     *      tags={"Posts"}, 
+     *      @OA\Parameter(name="page", in="query", description="Page number", required=false, 
+     *      @OA\Schema(type="integer", minimum=1)), 
+     *      @OA\Parameter(name="perPage", in="query", description="Number of posts per page", required=false, 
+     *      @OA\Schema(type="integer", minimum=1, maximum=100)), 
+     *      @OA\Response(response=200, description="Success", @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/PostResource"))), 
+     *      @OA\Response(response=400, description="Invalid parameters")) 
      */
     public function index(Request $request)
     {
@@ -28,13 +42,33 @@ class PostController extends Controller
         $perPage = $validated['perPage'] ?? 20;
 
         $posts = $this->postService->getNewest($page, $perPage);
-        $posts->setPath(config('app.url').'/api/v1/posts'); 
+        $posts->setPath(config('app.url') . '/api/v1/posts');
 
         return PostResource::collection($posts);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/v1/posts",
+     *     summary="Create a new post",
+     *     tags={"Posts"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/StorePostRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Post created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Bài viết được tạo thành công!!"),
+     *             @OA\Property(property="slug", type="string", example="new-post")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Internal Server Error"
+     *     )
+     * )
      */
     public function store(StorePostRequest $request)
     {
@@ -53,7 +87,19 @@ class PostController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/v1/posts/{slug}",
+     *     summary="Get a specific post by slug",
+     *     tags={"Posts"},
+     *     @OA\Parameter(name="slug",in="path",description="The slug of the post",required=true,@OA\Schema(type="string")),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Success",
+     *         @OA\JsonContent(ref="#/components/schemas/PostResource")
+     *     ),
+     *     @OA\Response(response=400,description="Bad Request", @OA\JsonContent()),
+     *     @OA\Response(response=404,description="Post not found", @OA\JsonContent())
+     * )
      */
     public function show(string $slug)
     {
@@ -70,11 +116,27 @@ class PostController extends Controller
     }
 
     /**
-     * Vote on a post (upvote or downvote).
+     * @OA\Post(
+     *     path="/api/v1/posts/{id}/vote",
+     *     summary="Vote on a post (upvote or downvote)",
+     *     tags={"Posts"},
+     *     @OA\Parameter(name="id",in="path",description="Post ID",required=true,@OA\Schema(type="string")),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="vote", type="string", enum={"up", "down", "none"}, example="up")
+     *         )
+     *     ),
+     *     @OA\Response(response=200,description="Vote recorded succes", @OA\JsonContent()),
+     *     @OA\Response(response=422,description="Invalid input", @OA\JsonContent()),
+     *     @OA\Response(response=400,description="Bad Request", @OA\JsonContent()),
+     * )
      */
     public function vote(Request $request, string $id)
     {
+        $request->merge(['id' => $request->route('id')]);
         $validatedData = $request->validate([
+            'id' => 'required|exists:posts,id',
             'vote' => 'required|string|in:up,down,none'
         ]);
         $voteType = $validatedData['vote'];

@@ -9,15 +9,23 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+   
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/v1/admin/users",
+     *     summary="Get a list of users",
+     *     tags={"Users"},
+     *     @OA\Response(response=200, description="Successful operation"),
+     *     @OA\Response(response=400, description="Invalid request"),
+     *     @OA\Response(response=403, description="Unauthorized"),
+     * )
      */
     public function index(Request $request)
     {
         $page = $request->get('page', 1);
         $perPage = $request->get('limit', 10);
         $users = User::paginate($perPage, ['*'], 'page', $page);
-        $users->setPath(config('app.url').'/api/v1/admin/user');
+        $users->setPath(config('app.url') . '/api/v1/admin/user');
         return UserResource::collection($users);
     }
 

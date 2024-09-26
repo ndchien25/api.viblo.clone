@@ -550,6 +550,360 @@
                 }
             }
         },
+        "/api/v1/upload": {
+            "post": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Upload media to S3",
+                "operationId": "4dcb14c631ed9a5307984191302dde71",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "file_name"
+                                ],
+                                "properties": {
+                                    "file_name": {
+                                        "description": "The file extension of the media",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful media upload",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "file_path": {
+                                            "description": "The path of the uploaded file",
+                                            "type": "string"
+                                        },
+                                        "pre_signed": {
+                                            "description": "The pre-signed URL for the uploaded file",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/get-object": {
+            "get": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Get a media object URL",
+                "operationId": "aa94ee8a8662b88b9f9b7497e291317c",
+                "parameters": [
+                    {
+                        "name": "file_path",
+                        "in": "query",
+                        "description": "The path of the media file",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful retrieval of media URL",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "url": {
+                                            "description": "The URL of the requested media file",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/posts": {
+            "get": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get list of posts",
+                "operationId": "bc5d6e116cd8eeef273e7cc66f78a3aa",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "description": "Number of posts per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PostResource"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid parameters"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Create a new post",
+                "operationId": "e593a618b79c09fb513e3cb27015213a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StorePostRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Post created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bài viết được tạo thành công!!"
+                                        },
+                                        "slug": {
+                                            "type": "string",
+                                            "example": "new-post"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/api/v1/posts/{slug}": {
+            "get": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get a specific post by slug",
+                "operationId": "fc31574b5f089810405b67072905fac3",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "The slug of the post",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PostResource"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Post not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/posts/{id}/vote": {
+            "post": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Vote on a post (upvote or downvote)",
+                "operationId": "331bdb6f603c9b73f43fc6b9634d3cd6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Post ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "vote": {
+                                        "type": "string",
+                                        "enum": [
+                                            "up",
+                                            "down",
+                                            "none"
+                                        ],
+                                        "example": "up"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Vote recorded succes",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/tags/search": {
+            "get": {
+                "tags": [
+                    "Tags"
+                ],
+                "summary": "Search for tags",
+                "operationId": "fde3ee7ec695316dd175201c17a2988a",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "The search term for tags",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful search for tags",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/admin/users": {
             "get": {
                 "tags": [
@@ -566,6 +920,122 @@
                     },
                     "403": {
                         "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/v1/email/verify/{id}/{hash}": {
+            "get": {
+                "tags": [
+                    "Verification"
+                ],
+                "summary": "Verify user email",
+                "operationId": "83b6beb55f4d1c1de919031b7bdd2a5d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The ID of the user to verify",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "The hash used for verifying the user's email",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirects after verification"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/email/verify/resend": {
+            "post": {
+                "tags": [
+                    "Verification"
+                ],
+                "summary": "Resend verification email",
+                "operationId": "be66a63df8f60ab506d278cb03ecb9a4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "User's email address",
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Verification link sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Verification link sent!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Your email is already verified."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -686,6 +1156,31 @@
                 },
                 "type": "object"
             },
+            "StorePostRequest": {
+                "required": [
+                    "title",
+                    "content",
+                    "tags"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "New Post"
+                    },
+                    "content": {
+                        "type": "string",
+                        "example": "Post content"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "tag1"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "CommentResource": {
                 "properties": {
                     "id": {
@@ -742,6 +1237,112 @@
                     },
                     "user": {
                         "$ref": "#/components/schemas/UserResource"
+                    }
+                },
+                "type": "object"
+            },
+            "PostResource": {
+                "title": "Post Resource",
+                "description": "Post Resource model",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "serie_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "organ_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Introduction to Laravel"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "introduction-to-laravel"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "published"
+                    },
+                    "schedule_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-09-26T10:30:00Z"
+                    },
+                    "publish_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-09-26T12:00:00Z"
+                    },
+                    "view_count": {
+                        "type": "integer",
+                        "example": 1234
+                    },
+                    "vote": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-09-25T10:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-09-25T12:00:00Z"
+                    },
+                    "comment_count": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "tags": {
+                        "$ref": "#/components/schemas/TagResource"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResource"
+                    }
+                },
+                "type": "object"
+            },
+            "TagResource": {
+                "title": "Tag Resource",
+                "description": "Tag Resource representation",
+                "properties": {
+                    "id": {
+                        "description": "ID of the tag",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Name of the tag",
+                        "type": "string"
+                    },
+                    "slug": {
+                        "description": "Slug of the tag",
+                        "type": "string"
+                    },
+                    "post_count": {
+                        "description": "Number of posts associated with the tag",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "description": "Tag creation timestamp",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Tag update timestamp",
+                        "type": "string",
+                        "format": "date-time"
                     }
                 },
                 "type": "object"
@@ -835,6 +1436,22 @@
         {
             "name": "Comments",
             "description": "API endpoints for managing comments"
+        },
+        {
+            "name": "Media",
+            "description": "API endpoints for media management"
+        },
+        {
+            "name": "Posts",
+            "description": "API endpoints for manage post"
+        },
+        {
+            "name": "Tags",
+            "description": "API endpoints for managing tags"
+        },
+        {
+            "name": "Verification",
+            "description": "API endpoints for email verification"
         },
         {
             "name": "Users",
