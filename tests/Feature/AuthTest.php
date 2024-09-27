@@ -16,29 +16,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AuthTest extends TestCase
 {
-    protected User $user;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        // Tạo người dùng dùng chung cho các bài kiểm tra
-        $this->user = User::factory()->create([
-            'username' => 'testuser',
-            'display_name' => 'Test User',
-            'fullname' => 'Full Name',
-            'email' => 'user@example.com',
-            'avatar' => 'https://example.com/avatar.jpg',
-            'role_id' => 1,
-            'address' => '123 Main St',
-            'phone' => '1234567890',
-            'university' => 'University Name',
-            'followers_count' => 100,
-            'following_count' => 50,
-            'total_view' => JsonResponse::HTTP_OK,
-            'bookmark_count' => 10,
-            'password' => bcrypt('password123'),
-        ]);
     }
 
     #[Test]
@@ -95,13 +75,8 @@ class AuthTest extends TestCase
     #[Test]
     public function it_can_login_user_with_email()
     {
-        $user = User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('password123'),
-        ]);
-
         $response = $this->postJson('/api/v1/login', [
-            'email_or_username' => 'test@example.com',
+            'email_or_username' => $this->user->email,
             'password' => 'password123',
         ]);
 
@@ -111,20 +86,20 @@ class AuthTest extends TestCase
             'message' => 'Login successful!',
             'verified' => true,
             'user' => [
-                'id' => $user->id,
-                'username' => $user->username,
-                'display_name' => $user->display_name,
-                'fullname' => $user->fullname,
-                'email' => $user->email,
-                'avatar' => $user->avatar,
-                'role_id' => $user->role_id,
-                'address' => $user->address,
-                'phone' => $user->phone,
-                'university' => $user->university,
-                'followers_count' => $user->followers_count,
-                'following_count' => $user->following_count,
-                'total_view' => $user->total_view,
-                'bookmark_count' => $user->bookmark_count,
+                'id' => $this->user->id,
+                'username' => $this->user->username,
+                'display_name' => $this->user->display_name,
+                'fullname' => $this->user->fullname,
+                'email' => $this->user->email,
+                'avatar' => $this->user->avatar,
+                'role_id' => $this->user->role_id,
+                'address' => $this->user->address,
+                'phone' => $this->user->phone,
+                'university' => $this->user->university,
+                'followers_count' => $this->user->followers_count,
+                'following_count' => $this->user->following_count,
+                'total_view' => $this->user->total_view,
+                'bookmark_count' => $this->user->bookmark_count,
             ]
         ]);
     }
@@ -189,14 +164,14 @@ class AuthTest extends TestCase
     public function it_can_send_reset_link_email()
     {
         $response = $this->postJson('/api/v1/forgot-password', [
-            'email' => 'user@example.com',
+            'email' => $this->user->email,
         ]);
 
         $response->assertStatus(JsonResponse::HTTP_OK);
         $this->assertEquals('We have emailed your password reset link.', $response->json('message'));
 
         $this->assertDatabaseHas('password_reset_tokens', [
-            'email' => 'user@example.com',
+            'email' => $this->user->email,
         ]);
     }
 
@@ -218,13 +193,8 @@ class AuthTest extends TestCase
     #[Test]
     public function it_returns_error_for_invalid_token()
     {
-        User::factory()->create([
-            'email' => 'testuser@example.com',
-            'password' => bcrypt('oldpassword'),
-        ]);
-
         $data = [
-            'email' => 'testuser@example.com',
+            'email' => $this->user->email,
             'password' => 'newpassword123',
             'c_password' => 'newpassword123',
             'token' => 'invalid-token',
