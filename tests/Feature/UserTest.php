@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 use App\Http\Resources\UserResource;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class UserTest extends TestCase
 {   
@@ -22,7 +23,7 @@ class UserTest extends TestCase
     {
         $response = $this->getJson('/api/v1/admin/users');
 
-        $response->assertStatus(403);
+        $response->assertStatus(JsonResponse::HTTP_FORBIDDEN);
 
         $this->assertEquals('Unauthorized', $response->json('message'));
     }
@@ -37,7 +38,7 @@ class UserTest extends TestCase
 
         $response = $this->actingAs($nonAdminUser)->getJson('/api/v1/admin/users');
 
-        $response->assertStatus(403);
+        $response->assertStatus(JsonResponse::HTTP_FORBIDDEN);
 
         $this->assertEquals('Unauthorized', $response->json('message'));
     }
@@ -51,7 +52,7 @@ class UserTest extends TestCase
 
         $response = $this->getJson('/api/v1/admin/users?page=invalid');
 
-        $response->assertStatus(422)
+        $response->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY)
             ->assertJsonValidationErrors(['page']);
     }
 
@@ -68,7 +69,7 @@ class UserTest extends TestCase
         $response = $this->actingAs($adminUser)->getJson('/api/v1/admin/users');
 
         // Assert response status and structure
-        $response->assertStatus(200)
+        $response->assertStatus(JsonResponse::HTTP_OK)
             ->assertJsonStructure([
                 'data' => [
                     '*' => [

@@ -6,6 +6,7 @@ use App\Models\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
+use Notification;
 abstract class TestCase extends BaseTestCase
 {
     use RefreshDatabase;
@@ -14,6 +15,7 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
         $this->createRoles();
+        Notification::fake();
     }
 
     protected function createRoles()

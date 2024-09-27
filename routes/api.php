@@ -16,8 +16,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/register', 'register');
         Route::post('/forgot-password', 'sendResetLinkEmail')->middleware('throttle:1, 1');
         Route::post('/reset-password', 'reset_password')->name('password.reset');
-        Route::post('/logout', 'logout')->middleware('auth:sanctum');
-        Route::get('/me', 'me')->middleware('auth:sanctum');
+        Route::post('/logout', 'logout')->middleware('auth');
+        Route::get('/me', 'me')->middleware('auth');
     });
 
     // Email Verification Routes
@@ -35,8 +35,8 @@ Route::prefix('v1')->group(function () {
         Route::controller(PostController::class)->group(function () {
             Route::get('/{slug}', 'show');
             Route::get('', 'index');
-            Route::post('', 'store')->middleware(['auth:sanctum']);
-            Route::post('/{id}/vote', 'vote')->middleware(['auth:sanctum']);
+            Route::post('', 'store')->middleware(['auth']);
+            Route::post('/{id}/vote', 'vote')->middleware(['auth']);
         });
     });
 
@@ -46,7 +46,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Protected Routes
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth'])->group(function () {
         // User Routes
         Route::prefix('users')->group(function () {
             Route::get('/{username}', function ($username) {
@@ -58,14 +58,14 @@ Route::prefix('v1')->group(function () {
     // comments route
     Route::prefix('posts/{postId}/comments')->group(function () {
         Route::controller(CommentController::class)->group(function () {
-            Route::post('', 'store')->middleware('auth:sanctum');
-            Route::put('{id}', 'update')->middleware('auth:sanctum');
+            Route::post('', 'store')->middleware('auth');
+            Route::put('{id}', 'update')->middleware('auth');
             Route::get('', 'showParent');
             Route::get('/{parentId}/replies', 'showChild');
         });
     });
 
-    Route::post('/upload', [MediaController::class, 'upload'])->middleware('auth:sanctum');
+    Route::post('/upload', [MediaController::class, 'upload'])->middleware('auth');
     Route::get('/get-object', [MediaController::class, 'getObject']);
 
     Route::middleware(['admin'])->group(function () {

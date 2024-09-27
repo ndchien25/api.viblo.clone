@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
@@ -37,7 +38,7 @@ class AuthService extends BaseService
             'error' => false,
             'message' => 'Login successful!',
             'verified' => true,
-            'user' => Auth::user()
+            'user' => new UserResource($user)
         ];
     }
 

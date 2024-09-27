@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\SendResetLinkEmailRequest;
+use App\Http\Resources\UserResource;
 use App\Http\Services\AuthService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
@@ -113,7 +114,7 @@ class AuthController extends Controller
     public function reset_password(ResetPasswordRequest $request): JsonResponse
     {
         $status = $this->authService->resetPassword($request->only('email', 'password', 'c_password', 'token'));
-        return $status === Password::RESET_LINK_SENT ? response()->json([
+        return $status === Password::PASSWORD_RESET ? response()->json([
             'message' => __($status)
         ], Response::HTTP_OK) : response()->json([
             'message' => __($status)
@@ -129,12 +130,9 @@ class AuthController extends Controller
      *     @OA\Response(response=401, description="Unauthorized", @OA\JsonContent()),
      * )
      */
-    public function logout(Request $request): JsonResponse
+    public function logout(): JsonResponse
     {
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        $request->session()->flush();
+        Auth::logout();
         return response()->json([
             'error' => false,
             'message' => 'Successfully logged out!',
@@ -152,6 +150,6 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        return response()->json(['authenticated' => true, 'user' => $request->user()]);
+        return response()->json(['authenticated' => true, 'user' => new UserResource($request->user())]);
     }
 }
