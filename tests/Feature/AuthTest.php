@@ -31,7 +31,6 @@ class AuthTest extends TestCase
 
         $response->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
 
-        // Assert the validation errors returned
         $response->assertJsonValidationErrors([
             'email_or_username',
             'password'
@@ -204,7 +203,6 @@ class AuthTest extends TestCase
 
         $response = $this->postJson('/api/v1/reset-password', $data);
 
-        // Assert the response status and message
         $response->assertStatus(JsonResponse::HTTP_BAD_REQUEST);
         $response->assertJson([
             'message' => __('This password reset token is invalid.'),

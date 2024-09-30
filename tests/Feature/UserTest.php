@@ -59,16 +59,12 @@ class UserTest extends TestCase
     #[Test]
     public function it_can_get_a_list_of_users()
     {
-        // Create 15 regular users
         User::factory()->count(15)->create();
 
-        // Create an admin user
         $adminUser = $this->createAdminUser();
 
-        // Act as the admin user
         $response = $this->actingAs($adminUser)->getJson('/api/v1/admin/users');
 
-        // Assert response status and structure
         $response->assertStatus(JsonResponse::HTTP_OK)
             ->assertJsonStructure([
                 'data' => [

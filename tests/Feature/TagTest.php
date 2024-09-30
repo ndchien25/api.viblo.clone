@@ -16,10 +16,8 @@ class TagTest extends TestCase
     #[Test]
     public function it_returns_empty_array_when_no_tags_found()
     {
-        // Thực hiện yêu cầu tìm kiếm thẻ không tồn tại
         $response = $this->actingAs($this->user)->getJson('/api/v1/tags/search?search=nonexistenttag');
 
-        // Xác minh phản hồi
         $response->assertStatus(200)
             ->assertJson([]);
     }

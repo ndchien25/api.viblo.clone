@@ -76,14 +76,18 @@ class MediaController extends Controller
      *         )
      *     ),
      *     @OA\Response(
-     *         response=400,
-     *         description="Bad request",
+     *         response=422,
+     *         description="Input validated",
      *         @OA\JsonContent()
      *     )
      * )
      */
     public function getObject(Request $request)
     {
+        $request->validate([
+            'file_path' => ['required', 'string']
+        ]);
+
         $filePath = $request->input('file_path');
 
         $url = Storage::disk('s3')->url($filePath);
