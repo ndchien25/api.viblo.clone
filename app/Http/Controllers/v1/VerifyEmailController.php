@@ -47,9 +47,16 @@ class VerifyEmailController extends Controller
      *     )
      * )
      */
-    public function __invoke(Request $request): RedirectResponse
+    public function __invoke(Request $request)
     {
-        $user =  User::findOrFail($request->route('id'));
+        $hash = $request->route('hash');
+        $user =  User::find($request->route('id'));
+        if (!$user) {
+            return response()->json(['message' => 'Invalid Signature.'], Response::HTTP_FORBIDDEN);
+        }
+        if ($hash !== sha1($user->email)) {
+            return response()->json(['message' => 'Invalid Signature.'], Response::HTTP_FORBIDDEN);
+        }
 
         if ($user->hasVerifiedEmail()) {
             return redirect(env('FRONTEND_URL'));
@@ -103,18 +110,18 @@ class VerifyEmailController extends Controller
             'email' => 'required|email|exists:users,email',
         ]);
 
-        $user = User::where('email', $request->only('email'))->firstOrFail();
-        if (!$user->hasVerifiedEmail()) {
-            // Send verification email
-            $user->sendEmailVerificationNotification();
+        $user = User::where('email', $request->only('email'))->first();
+        if ($user->hasVerifiedEmail()) {
+            // Email is already verified
             return response()->json([
-                'message' => 'Verification link sent!',
-            ], Response::HTTP_OK);
+                'message' => 'Your email is already verified.',
+            ], Response::HTTP_BAD_REQUEST);
         }
 
-        // Email is already verified
+        $user->sendEmailVerificationNotification();
+
         return response()->json([
-            'message' => 'Your email is already verified.',
-        ], Response::HTTP_BAD_REQUEST);
+            'message' => 'Verification link sent!',
+        ], Response::HTTP_OK);
     }
 }

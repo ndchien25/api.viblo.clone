@@ -30,7 +30,7 @@ class MediaTest extends TestCase
     }
 
     #[Test]
-    public function testUploadMediaWithoutAuth()
+    public function uploadMediaWithoutAuth()
     {
         $data = [
             'file_name' => 'jpg',
@@ -38,12 +38,11 @@ class MediaTest extends TestCase
 
         $response = $this->postJson('/api/v1/upload', $data);
 
-        $response->assertStatus(401)
-            ->assertJson(['message' => 'Unauthenticated.']);
+        $response->assertStatus(401)->assertJson(['message' => 'Unauthenticated.']);
     }
 
     #[Test]
-    public function testUploadMediaWithAuth()
+    public function uploadMediaWithAuth()
     {
         $this->actingAs($this->user);
         $storage = $this->mockPresignedUrl();
@@ -52,30 +51,26 @@ class MediaTest extends TestCase
 
         $response = $this->postJson('/api/v1/upload', $data);
 
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'file_path',
-                'pre_signed',
-            ]);
+        $response->assertStatus(200)->assertJsonStructure([
+            'file_path',
+            'pre_signed',
+        ]);
     }
 
-    public function testGetObject()
+    public function itCanGetObject()
     {
         $filePath = '1/gallery/example.jpg';
         Storage::disk('s3')->put($filePath, 'content');
 
         $response = $this->getJson('/api/v1/get-object?file_path=' . $filePath);
 
-        $response->assertStatus(200)
-            ->assertJsonStructure(['url'])
-            ->assertJson(['url' => Storage::disk('s3')->url($filePath)]);
+        $response->assertStatus(200)->assertJsonStructure(['url'])->assertJson(['url' => Storage::disk('s3')->url($filePath)]);
     }
 
-    public function testGetObjectFailsWithoutFilePath()
+    public function getObjectFailsWithoutFilePath()
     {
         $response = $this->getJson('/api/v1/get-object');
 
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors(['file_path']);
+        $response->assertStatus(422)->assertJsonValidationErrors(['file_path']);
     }
 }

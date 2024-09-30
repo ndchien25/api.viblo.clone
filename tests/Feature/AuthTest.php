@@ -22,37 +22,35 @@ class AuthTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_422_for_invalid_login()
+    public function invalidInputLogin()
     {
         $response = $this->postJson('/api/v1/login', [
             'email_or_username' => Str::random(55),
             'password' => '123',
         ]);
 
-        $response->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
-
-        $response->assertJsonValidationErrors([
+        $response->assertUnprocessable()->assertJsonValidationErrors([
             'email_or_username',
             'password'
         ]);
     }
 
     #[Test]
-    public function it_returns_unauthorized_for_invalid_login()
+    public function unauthorizedForInvalidLogin()
     {
         $response = $this->postJson('/api/v1/login', [
             'email_or_username' => 'wrong@example.com',
             'password' => 'wrongpassword',
         ]);
 
-        $response->assertStatus(401);
+        $response->assertUnauthorized();
         $this->assertEquals('Wrong email/username or password!', $response->json('message'));
     }
 
     #[Test]
-    public function it_returns_error_for_unverified_email_on_login()
+    public function errorForUnverifiedEmailOnLogin()
     {
-        $user = User::factory()->create([
+        User::factory()->create([
             'email' => 'nona.upton@example.org',
             'password' => bcrypt('password'),
             'email_verified_at' => null,
@@ -63,8 +61,7 @@ class AuthTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertStatus(401);
-        $response->assertJson([
+        $response->assertUnauthorized()->assertJson([
             'error' => true,
             'message' => 'Email not verified!',
             'verified' => false,
@@ -72,15 +69,14 @@ class AuthTest extends TestCase
     }
 
     #[Test]
-    public function it_can_login_user_with_email()
+    public function loginUserWithEmail()
     {
         $response = $this->postJson('/api/v1/login', [
             'email_or_username' => $this->user->email,
             'password' => 'password123',
         ]);
 
-        $response->assertStatus(JsonResponse::HTTP_OK);
-        $response->assertJson([
+        $response->assertOk()->assertJson([
             'error' => false,
             'message' => 'Login successful!',
             'verified' => true,
@@ -104,7 +100,7 @@ class AuthTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_422_for_invalid_registration()
+    public function invalidRegistration()
     {
         $response = $this->postJson('/api/v1/register', [
             'email' => 'invalid-email',
@@ -114,12 +110,11 @@ class AuthTest extends TestCase
             'c_password' => '321',
         ]);
 
-        $response->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
-        $response->assertJsonValidationErrors(['email', 'username', 'password', 'display_name', 'c_password']);
+        $response->assertUnprocessable()->assertJsonValidationErrors(['email', 'username', 'password', 'display_name', 'c_password']);
     }
 
     #[Test]
-    public function it_can_register_user()
+    public function registerUser()
     {
         $data = [
             'display_name' => 'testuser',
@@ -133,9 +128,7 @@ class AuthTest extends TestCase
 
         $response = $this->postJson('/api/v1/register', $data);
 
-        $response->assertStatus(JsonResponse::HTTP_OK);
-
-        $response->assertJson([
+        $response->assertOk()->assertJson([
             'username' => 'user',
             'email' => 'testuser@example.com',
         ]);
@@ -149,24 +142,23 @@ class AuthTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_422_for_invalid_email_on_reset_link()
+    public function invalidEmailOnResetLink()
     {
         $response = $this->postJson('/api/v1/forgot-password', [
             'email' => 'invalid-email',
         ]);
 
-        $response->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
-        $response->assertJsonValidationErrors(['email']);
+        $response->assertUnprocessable()->assertJsonValidationErrors(['email']);
     }
 
     #[Test]
-    public function it_can_send_reset_link_email()
+    public function sendResetLinkEmail()
     {
         $response = $this->postJson('/api/v1/forgot-password', [
             'email' => $this->user->email,
         ]);
 
-        $response->assertStatus(JsonResponse::HTTP_OK);
+        $response->assertOk();
         $this->assertEquals('We have emailed your password reset link.', $response->json('message'));
 
         $this->assertDatabaseHas('password_reset_tokens', [
@@ -175,7 +167,7 @@ class AuthTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_422_for_invalid_input_reset_password()
+    public function invalidInputResetPassword()
     {
         $response = $this->postJson('/api/v1/reset-password', [
             'email' => 'invalid-email',
@@ -184,13 +176,11 @@ class AuthTest extends TestCase
             'token' => 'some-invalid-token',
         ]);
 
-        $response->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
-
-        $response->assertJsonValidationErrors(['email', 'c_password']);
+        $response->assertUnprocessable()->assertJsonValidationErrors(['email', 'c_password']);
     }
 
     #[Test]
-    public function it_returns_error_for_invalid_token()
+    public function errorForInvalidToken()
     {
         $data = [
             'email' => $this->user->email,
@@ -203,14 +193,13 @@ class AuthTest extends TestCase
 
         $response = $this->postJson('/api/v1/reset-password', $data);
 
-        $response->assertStatus(JsonResponse::HTTP_BAD_REQUEST);
-        $response->assertJson([
+        $response->assertBadRequest()->assertJson([
             'message' => __('This password reset token is invalid.'),
         ]);
     }
 
     #[Test]
-    public function it_returns_error_for_invalid_user()
+    public function errorForInvalidUser()
     {
         $data = [
             'email' => 'nonexistentuser@example.com',
@@ -221,11 +210,10 @@ class AuthTest extends TestCase
 
         $response = $this->postJson('/api/v1/reset-password', $data);
 
-        $response->assertStatus(JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
-        $response->assertJsonValidationErrors(['email']);
+        $response->assertUnprocessable()->assertJsonValidationErrors(['email']);
     }
     #[Test]
-    public function it_can_reset_password_successfully()
+    public function resetPasswordSuccessfully()
     {
         $plainToken = Str::random(60);
 
@@ -243,8 +231,8 @@ class AuthTest extends TestCase
         ];
 
         $response = $this->postJson('/api/v1/reset-password', $data);
-        $response->assertStatus(JsonResponse::HTTP_OK);
-        $response->assertJson([
+
+        $response->assertOk()->assertJson([
             'message' => __('Your password has been reset.'),
         ]);
 
@@ -253,26 +241,24 @@ class AuthTest extends TestCase
     }
 
     #[Test]
-    public function test_logout_invalid_user()
+    public function logoutInvalidUser()
     {
         $response = $this->postJson('/api/v1/logout');
 
-        $response->assertStatus(401);
-        $response->assertJson([
+        $response->assertUnauthorized()->assertJson([
             'message' => 'Unauthenticated.',
         ]);
 
         $this->assertFalse(Auth::check());
     }
 
-    public function test_user_can_logout_successfully()
+    public function userCanLogoutSuccessfully()
     {
         $this->actingAs($this->user);
 
         $response = $this->postJson('/api/v1/logout');
 
-        $response->assertStatus(JsonResponse::HTTP_ACCEPTED);
-        $response->assertJson([
+        $response->assertAccepted()->assertJson([
             'error' => false,
             'message' => 'Successfully logged out!',
         ]);
@@ -280,41 +266,39 @@ class AuthTest extends TestCase
         $this->assertFalse(Auth::check());
     }
 
-    public function test_unauthenticated_user_cannot_get_their_details()
+    public function unauthenticatedUserCannotGetTheirDetails()
     {
         $response = $this->getJson('/api/v1/me');
 
-        $response->assertStatus(JsonResponse::HTTP_UNAUTHORIZED);
-        $response->assertJson([
+        $response->assertUnauthorized()->assertJson([
             'message' => 'Unauthenticated.',
         ]);
     }
 
-    public function test_authenticated_user_can_get_their_details()
+    public function authenticatedUserCanGetTheirDetails()
     {
         $this->actingAs($this->user);
 
         $response = $this->getJson('/api/v1/me');
 
-        $response->assertStatus(JsonResponse::HTTP_OK);
-        $response->assertJson([
-            'authenticated' => true,
-            'user' => [
-                'id' => $this->user->id,
-                'username' => $this->user->username,
-                'display_name' => $this->user->display_name,
-                'fullname' => $this->user->fullname,
-                'email' => $this->user->email,
-                'avatar' => $this->user->avatar,
-                'role_id' => $this->user->role_id,
-                'address' => $this->user->address,
-                'phone' => $this->user->phone,
-                'university' => $this->user->university,
-                'followers_count' => $this->user->followers_count,
-                'following_count' => $this->user->following_count,
-                'total_view' => $this->user->total_view,
-                'bookmark_count' => $this->user->bookmark_count,
-            ],
-        ]);
+        $response->assertOk()->assertJson([
+                'authenticated' => true,
+                'user' => [
+                    'id' => $this->user->id,
+                    'username' => $this->user->username,
+                    'display_name' => $this->user->display_name,
+                    'fullname' => $this->user->fullname,
+                    'email' => $this->user->email,
+                    'avatar' => $this->user->avatar,
+                    'role_id' => $this->user->role_id,
+                    'address' => $this->user->address,
+                    'phone' => $this->user->phone,
+                    'university' => $this->user->university,
+                    'followers_count' => $this->user->followers_count,
+                    'following_count' => $this->user->following_count,
+                    'total_view' => $this->user->total_view,
+                    'bookmark_count' => $this->user->bookmark_count,
+                ],
+            ]);
     }
 }

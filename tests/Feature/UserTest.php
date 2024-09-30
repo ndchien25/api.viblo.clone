@@ -10,7 +10,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class UserTest extends TestCase
-{   
+{
     protected function createAdminUser()
     {
         return User::factory()->create([
@@ -19,7 +19,7 @@ class UserTest extends TestCase
         ]);
     }
     #[Test]
-    public function it_returns_403_for_unauthenticated_user()
+    public function unauthenticatedUser()
     {
         $response = $this->getJson('/api/v1/admin/users');
 
@@ -29,7 +29,7 @@ class UserTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_403_for_non_admin_user()
+    public function nonAdminUser()
     {
         $nonAdminUser = User::factory()->create([
             'role_id' => 2,
@@ -44,7 +44,7 @@ class UserTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_422_for_invalid_requests()
+    public function invalidRequests()
     {
         $adminUser = $this->createAdminUser();
 
@@ -57,7 +57,7 @@ class UserTest extends TestCase
     }
 
     #[Test]
-    public function it_can_get_a_list_of_users()
+    public function getAListOfUsers()
     {
         User::factory()->count(15)->create();
 
@@ -65,48 +65,47 @@ class UserTest extends TestCase
 
         $response = $this->actingAs($adminUser)->getJson('/api/v1/admin/users');
 
-        $response->assertStatus(JsonResponse::HTTP_OK)
-            ->assertJsonStructure([
-                'data' => [
+        $response->assertStatus(JsonResponse::HTTP_OK)->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'username',
+                    'display_name',
+                    'fullname',
+                    'email',
+                    'avatar',
+                    'role_id',
+                    'address',
+                    'phone',
+                    'university',
+                    'followers_count',
+                    'following_count',
+                    'total_view',
+                    'bookmark_count',
+                ]
+            ],
+            'links' => [
+                'first',
+                'last',
+                'prev',
+                'next'
+            ],
+            'meta' => [
+                'current_page',
+                'from',
+                'last_page',
+                'links' => [
                     '*' => [
-                        'id',
-                        'username',
-                        'display_name',
-                        'fullname',
-                        'email',
-                        'avatar',
-                        'role_id',
-                        'address',
-                        'phone',
-                        'university',
-                        'followers_count',
-                        'following_count',
-                        'total_view',
-                        'bookmark_count',
+                        'url',
+                        'label',
+                        'active',
                     ]
                 ],
-                'links' => [
-                    'first',
-                    'last',
-                    'prev',
-                    'next'
-                ],
-                'meta' => [
-                    'current_page',
-                    'from',
-                    'last_page',
-                    'links' => [
-                        '*' => [
-                            'url',
-                            'label',
-                            'active',
-                        ]
-                    ],
-                    'per_page',
-                    'to',
-                    'total'
-                ],
-            ]);
+                'per_page',
+                'to',
+                'total'
+            ],
+        ]);
 
         $this->assertCount(10, $response->json('data'));
 

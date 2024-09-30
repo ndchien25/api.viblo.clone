@@ -76,3 +76,6 @@ Route::prefix('v1')->group(function () {
         });
     });
 });
+Route::fallback(function (){
+    abort(404, 'API resource not found');
+});

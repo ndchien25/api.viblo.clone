@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\Tag;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -14,27 +13,25 @@ class TagTest extends TestCase
     }
 
     #[Test]
-    public function it_returns_empty_array_when_no_tags_found()
+    public function emptyArrayWhenNoTagsFound()
     {
         $response = $this->actingAs($this->user)->getJson('/api/v1/tags/search?search=nonexistenttag');
 
-        $response->assertStatus(200)
-            ->assertJson([]);
+        $response->assertStatus(200)->assertJson([]);
     }
 
     #[Test]
-    public function it_can_search_tags()
+    public function searchTags()
     {
         $searchQuery = 'sus';
-        $response = $this->actingAs($this->user)->getJson('/api/v1/tags/search?search='.$searchQuery);
+        $response = $this->actingAs($this->user)->getJson('/api/v1/tags/search?search=' . $searchQuery);
 
         // Xác minh phản hồi
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                '*' => [
-                    'id',
-                    'name',
-                ]
-            ]);
+        $response->assertStatus(200)->assertJsonStructure([
+            '*' => [
+                'id',
+                'name',
+            ]
+        ]);
     }
 }
