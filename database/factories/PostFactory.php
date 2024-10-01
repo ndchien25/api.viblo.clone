@@ -38,7 +38,7 @@ class PostFactory extends Factory
             'schedule_at' => $this->faker->dateTimeBetween('now', '+1 week'),
             'publish_at' => $this->faker->dateTimeBetween('now', '+1 week'),
             'view_count' => $this->faker->numberBetween(0, 1000),
-            'vote' => $this->faker->numberBetween(0, 100),
+            'vote' => 0,
             'created_at' => now(),
             'updated_at' => now()
         ];

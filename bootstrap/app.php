@@ -15,11 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
-        $middleware->group('api', [
-            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            // 'throttle:api',
+        $middleware->group('force.json', [
             \App\Http\Middleware\ForceJsonResponse::class,
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ]);
         $middleware->trustProxies(at: '*');
     })

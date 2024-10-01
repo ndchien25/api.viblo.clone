@@ -27,7 +27,7 @@ class PostService extends BaseService
 
     public function getBySlug(string $slug = '')
     {
-        $post = Post::with(['tags', 'user', 'comments'])->where('slug', $slug)->firstOrFail();
+        $post = Post::with(['tags', 'user'])->where('slug', $slug)->firstOrFail();
         $post->increment('view_count');
         if (Auth::check()) {
             $userId = Auth::id();

@@ -9,7 +9,7 @@ use App\Http\Controllers\v1\UserController;
 use App\Http\Controllers\v1\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('v1')->group(function () {
+Route::group(['prefix' => 'v1', 'middleware' => ['force.json']], function () {
     // Authentication Routes
     Route::controller(AuthController::class)->group(function () {
         Route::post('/login', 'login')->name('login');

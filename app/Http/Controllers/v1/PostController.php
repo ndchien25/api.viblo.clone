@@ -83,7 +83,7 @@ class PostController extends Controller
 
         return response()->json([
             "message" => "Lỗi không tạo được bài viết. Vui lòng thử lại"
-        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        ], Response::HTTP_BAD_REQUEST);
     }
 
     /**

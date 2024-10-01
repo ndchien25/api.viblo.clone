@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use Str;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AuthTest extends TestCase
 {

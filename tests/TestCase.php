@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\Post;
 use App\Models\Role;
 use App\Models\Tag;
 use App\Models\User;
@@ -9,16 +10,20 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 use Notification;
+
 abstract class TestCase extends BaseTestCase
 {
     use RefreshDatabase;
 
     protected User $user;
+    protected Post $post;
     protected function setUp(): void
     {
         parent::setUp();
         $this->createRoles();
         $this->createSpectificUser();
+        $this->post = $this->createPost();
+        $this->createPosts();
         $this->createTags();
         Notification::fake();
     }
@@ -30,7 +35,8 @@ abstract class TestCase extends BaseTestCase
         Role::factory()->create(['id' => 3, 'role_name' => 'regular_user']);
     }
 
-    protected function createSpectificUser() {
+    protected function createSpectificUser()
+    {
         $this->user = User::factory()->create([
             'username' => 'testuser',
             'display_name' => 'Test User',
@@ -49,8 +55,18 @@ abstract class TestCase extends BaseTestCase
         ]);
     }
 
-    protected function createTags() 
+    protected function createTags()
     {
-       Tag::factory()->count(15)->create();
+        Tag::factory()->count(15)->create();
+    }
+
+    protected function createPosts()
+    {
+        Post::factory()->count(15)->create(['user_id' => $this->user->id]);
+    }
+
+    protected function createPost()
+    {
+        return Post::factory()->create(['user_id' => $this->user->id]);
     }
 }
