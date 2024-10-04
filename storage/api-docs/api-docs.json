@@ -643,8 +643,8 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad request",
+                    "422": {
+                        "description": "Input validated",
                         "content": {
                             "application/json": {
                                 "schema": {}

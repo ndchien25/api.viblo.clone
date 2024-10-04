@@ -3,6 +3,7 @@
 use App\Http\Controllers\v1\AuthController;
 use App\Http\Controllers\v1\CommentController;
 use App\Http\Controllers\v1\MediaController;
+use App\Http\Controllers\v1\NotificationController;
 use App\Http\Controllers\v1\PostController;
 use App\Http\Controllers\v1\TagController;
 use App\Http\Controllers\v1\UserController;
@@ -73,6 +74,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['force.json']], function () {
             Route::controller(UserController::class)->group(function () {
                 Route::get('users', 'index');
             });
+        });
+    });
+
+    Route::group(['prefix' => 'notifications', 'middleware' => 'auth'], function() {
+        Route::controller(NotificationController::class)->group(function () {
+            Route::get('', 'index');
+            Route::post('mark-as-read', 'markAsRead');
         });
     });
 });

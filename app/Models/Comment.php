@@ -40,4 +40,9 @@ class Comment extends Model
     {
         return $this->morphMany(ActivityLog::class, 'target');
     }
+
+    public function post(): BelongsTo
+    {
+        return $this->belongsTo(Post::class, 'post_id');
+    }
 }

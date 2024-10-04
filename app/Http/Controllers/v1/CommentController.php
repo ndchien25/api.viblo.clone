@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\v1;
 
+use App\Events\NewCommentCreated;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Resources\CommentResource;
@@ -46,6 +47,7 @@ class CommentController extends Controller
             return response()->json([], Response::HTTP_BAD_REQUEST);
         }
         $comment->load('user');
+        broadcast(new NewCommentCreated($comment, $postId));
         return response()->json([
             'comment' => new CommentResource($comment)
         ], Response::HTTP_CREATED);
