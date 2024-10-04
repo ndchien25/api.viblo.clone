@@ -654,6 +654,67 @@
                 }
             }
         },
+        "/api/v1/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Get list of notification",
+                "operationId": "1a9cfe74b6544354c5a8677df9873d45",
+                "parameters": [
+                    {
+                        "name": "perPage",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of notifications",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotificationResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/api/v1/notifications/mark-as-read": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark all notifications as read",
+                "operationId": "31f2c732716307c254878f7e42e88934",
+                "responses": {
+                    "200": {
+                        "description": "All notifications marked as read."
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
         "/api/v1/posts": {
             "get": {
                 "tags": [
@@ -1264,6 +1325,42 @@
                 },
                 "type": "object"
             },
+            "NotificationResource": {
+                "title": "NotificationResource",
+                "required": [
+                    "id",
+                    "data",
+                    "type",
+                    "created_at"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "data": {
+                        "type": "object",
+                        "example": {
+                            "message": "You have a new notification"
+                        }
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "info"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-04T10:00:00Z"
+                    },
+                    "read_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-04T12:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
             "PostResource": {
                 "title": "Post Resource",
                 "description": "Post Resource model",
@@ -1463,6 +1560,10 @@
         {
             "name": "Media",
             "description": "API endpoints for media management"
+        },
+        {
+            "name": "Notifications",
+            "description": "API endpoints for user notifications"
         },
         {
             "name": "Posts",
