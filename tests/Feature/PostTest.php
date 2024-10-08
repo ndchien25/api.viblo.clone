@@ -27,17 +27,11 @@ class PostTest extends TestCase
                 '*' => [
                     'id',
                     'user_id',
-                    'serie_id',
-                    'organ_id',
                     'title',
                     'slug',
-                    'status',
-                    'schedule_at',
-                    'publish_at',
                     'view_count',
                     'vote',
                     'created_at',
-                    'updated_at',
                     'comment_count',
                     'tags' => [
                         '*' => [
@@ -45,21 +39,15 @@ class PostTest extends TestCase
                             'name',
                             'slug',
                             'post_count',
-                            'created_at',
-                            'updated_at',
                         ],
                     ],
                     'user' => [
                         'id',
                         'username',
                         'display_name',
-                        'fullname',
                         'email',
                         'avatar',
                         'role_id',
-                        'address',
-                        'phone',
-                        'university',
                         'followers_count',
                         'following_count',
                         'total_view',
@@ -70,8 +58,6 @@ class PostTest extends TestCase
             'meta' => [
                 'current_page',
                 'last_page',
-                'per_page',
-                'total',
             ],
         ])
             ->assertJsonCount(5, 'data');

@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Events\NewCommentCreated;
 use App\Models\Comment;
 use App\Models\User;
+use Illuminate\Support\Facades\Event;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -22,8 +24,14 @@ class CommentTest extends TestCase
             'parent_id' => null,
         ];
 
+        Event::fake();
+        
         $response = $this->postJson("/api/v1/posts/{$this->post->id}/comments", $payload);
 
+        Event::assertDispatched(NewCommentCreated::class, function ($event) {
+            return $event->comment->post_id === $this->post->id && $event->comment->user_id === $this->user->id;
+        });
+        
         $response->assertCreated()
             ->assertJsonStructure([
                 'comment' => [
@@ -39,13 +47,9 @@ class CommentTest extends TestCase
                         'id',
                         'username',
                         'display_name',
-                        'fullname',
                         'email',
                         'avatar',
                         'role_id',
-                        'address',
-                        'phone',
-                        'university',
                         'followers_count',
                         'following_count',
                         'total_view',
@@ -122,13 +126,9 @@ class CommentTest extends TestCase
                             'id',
                             'username',
                             'display_name',
-                            'fullname',
                             'email',
                             'avatar',
                             'role_id',
-                            'address',
-                            'phone',
-                            'university',
                             'followers_count',
                             'following_count',
                             'total_view',
@@ -192,13 +192,9 @@ class CommentTest extends TestCase
                             'id',
                             'username',
                             'display_name',
-                            'fullname',
                             'email',
                             'avatar',
                             'role_id',
-                            'address',
-                            'phone',
-                            'university',
                             'followers_count',
                             'following_count',
                             'total_view',
@@ -260,13 +256,9 @@ class CommentTest extends TestCase
                         'id',
                         'username',
                         'display_name',
-                        'fullname',
                         'email',
                         'avatar',
                         'role_id',
-                        'address',
-                        'phone',
-                        'university',
                         'followers_count',
                         'following_count',
                         'total_view',
@@ -409,13 +401,9 @@ class CommentTest extends TestCase
                             'id',
                             'username',
                             'display_name',
-                            'fullname',
                             'email',
                             'avatar',
                             'role_id',
-                            'address',
-                            'phone',
-                            'university',
                             'followers_count',
                             'following_count',
                             'total_view',

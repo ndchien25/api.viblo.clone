@@ -14,19 +14,25 @@ class PostTagSeeder extends Seeder
      */
     public function run(): void
     {
-        $posts = Post::all();
-        $tags = Tag::all();
+        $tags = Tag::pluck('id')->toArray();
+        $idspost = Post::pluck('id')->toArray();
+        $data = [];
 
-        // Seed the post_tags table with random post-tag associations
-        foreach ($posts as $post) {
-            $tagsForPost = $tags->random(rand(1, 5)); // Randomly assign 1 to 5 tags per post
+        foreach($idspost as $id) {
+            $randomTags = array_rand(array_flip($tags), rand(3, 7));
 
-            foreach ($tagsForPost as $tag) {
-                DB::table('post_tags')->insert([
-                    'post_id' => $post->id,
-                    'tag_id' => $tag->id,
-                ]);
+            foreach($randomTags as $tagId) {
+                $data[] = [
+                    'post_id' => $id,
+                    'tag_id' => $tagId,
+                ];
             }
+        } 
+
+        $chunks = array_chunk($data, 5000);
+
+        foreach ($chunks as $chunk) {
+            DB::table('post_tags')->insert($chunk);
         }
     }
 }

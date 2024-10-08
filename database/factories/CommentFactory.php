@@ -32,7 +32,7 @@ class CommentFactory extends Factory
             'type' => $this->faker->randomElement(['post', 'question']),
             'content' => $this->faker->text,
             'parent_id' => null, // Adjust if you need nested comments
-            'row_count' => $this->faker->numberBetween(0, 100),
+            'row_count' => 0,
             'created_at' => now(),
             'updated_at' => now()
         ];

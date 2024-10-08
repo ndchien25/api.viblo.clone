@@ -63,6 +63,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['force.json']], function () {
             Route::put('{id}', 'update')->middleware('auth');
             Route::get('', 'showParent');
             Route::get('/{parentId}/replies', 'showChild');
+            Route::delete('{id}', 'destroy')->middleware('auth');
         });
     });
 

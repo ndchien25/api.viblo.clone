@@ -42,9 +42,13 @@ class PostController extends Controller
         $perPage = $validated['perPage'] ?? 20;
 
         $posts = $this->postService->getNewest($page, $perPage);
-        $posts->setPath(config('app.url') . '/api/v1/posts');
-
-        return PostResource::collection($posts);
+        return response()->json([
+            'data' => PostResource::collection($posts), // Dữ liệu bài viết
+            'meta' => [
+                'current_page' => $posts->currentPage(),
+                'last_page' => $posts->lastPage(),
+            ],
+        ]);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\v1;
 
 use App\Events\NewCommentCreated;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DeleteCommentRequest;
 use App\Http\Requests\StoreCommentRequest;
 use App\Http\Resources\CommentResource;
 use Illuminate\Http\Request;
@@ -185,7 +186,7 @@ class CommentController extends Controller
      *     @OA\Response(response=422, description="Invalid Input", @OA\JsonContent()),
      * )
      */
-    public function update(Request $request,string $postId, string $id)
+    public function update(Request $request, string $postId, string $id)
     {
         $validated = $request->validate([
             'content' => 'required|string',
@@ -208,10 +209,59 @@ class CommentController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/v1/posts/{postId}/comments/{id}",
+     *     summary="Delete a comment",
+     *     tags={"Comments"},
+     *     @OA\Parameter(
+     *         name="postId",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the post",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the comment to be deleted",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Comment deleted successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Comment deleted successfully.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthorized action.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Forbidden",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="You do not have permission to delete this comment.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Comment not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Comment not found.")
+     *         )
+     *     ),
+     * )
      */
-    public function destroy(string $id)
+    public function destroy(DeleteCommentRequest $request, string $postId, string $id)
     {
-        //
+
+        $this->commentService->delete($postId, $id);
+
+        return response()->json(['message' => 'Comment deleted successfully.'], Response::HTTP_OK);
     }
 }

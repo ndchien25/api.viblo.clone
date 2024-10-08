@@ -88,4 +88,13 @@ class CommentService extends BaseService
 
         return $comments;
     }
+
+    public function delete($postId, $id)
+    {
+        $comment = Comment::where('id', $id)
+            ->where('post_id', $postId)
+            ->first();
+        
+        $comment->delete();
+    }
 }

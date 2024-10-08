@@ -27,8 +27,9 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
+        $userIds = User::pluck('id')->toArray();
         return [
-            'user_id' => User::inRandomOrder()->first()->id,
+            'user_id' => $this->faker->randomElement($userIds),
             'serie_id' => null,
             'organ_id' => null,
             'title' => $this->faker->sentence,

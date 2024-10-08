@@ -659,7 +659,7 @@
                 "tags": [
                     "Notifications"
                 ],
-                "summary": "Get list of notification",
+                "summary": "Get list of notifications",
                 "operationId": "1a9cfe74b6544354c5a8677df9873d45",
                 "parameters": [
                     {
