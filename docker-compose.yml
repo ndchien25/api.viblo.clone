@@ -1,5 +1,5 @@
 services:
-    api.viblo.clone:
+    backend:
         build:
             context: ./docker/8.3
             dockerfile: Dockerfile
@@ -29,7 +29,7 @@ services:
             - phpmyadmin
             - mailpit
             - redis
-    viblo.clone:
+    frontend:
         build:
             context: ../viblo.clone
             dockerfile: ../viblo.clone/Dockerfile
@@ -41,7 +41,6 @@ services:
             - CHOKIDAR_USEPOLLING=true
         volumes:
             - ../viblo.clone:/app
-            - /app/node_modules/
         networks:
             - sail
     mysql:
@@ -131,8 +130,8 @@ services:
         networks:
             - sail
         depends_on:
-            - api.viblo.clone
-            - viblo.clone
+            - backend
+            - frontend
             - minio
             - mailpit
             - redis

@@ -22,6 +22,7 @@ return new class extends Migration
         Schema::create('post_tags', function (Blueprint $table) {
             $table->bigInteger('post_id');
             $table->bigInteger('tag_id')->default(null);
+            $table->primary(['post_id', 'tag_id']);
         });
     }
 

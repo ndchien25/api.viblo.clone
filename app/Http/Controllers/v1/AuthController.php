@@ -9,10 +9,12 @@ use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\SendResetLinkEmailRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Services\AuthService;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Http\Request;
+use Socialite;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -154,5 +156,39 @@ class AuthController extends Controller
     public function me(Request $request): JsonResponse
     {
         return response()->json(['authenticated' => true, 'user' => new UserResource($request->user())]);
+    }
+
+    public function redirectToGoogle()
+    {
+        $url = Socialite::driver('google')->redirect()->getTargetUrl();
+
+        return response()->json(['url' => $url]);
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $user = Socialite::driver('google')->user();
+            $finduser = User::where('email', $user->email)
+                ->first();
+            if ($finduser) {
+                Auth::login($finduser);
+                return redirect((env('FRONTEND_URL') . '/newest'));
+            } else {
+                $newUser = User::create([
+                    'username' => $user->name,
+                    'display_name' => $user->name,
+                    'email' => $user->email,
+                    'google_id' => $user->id,
+                    'password' => bcrypt('password'),
+                    'email_verified_at' => now()
+                ]);
+
+                Auth::login($newUser);
+                return redirect((env('FRONTEND_URL') . '/newest'));
+            }
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 }

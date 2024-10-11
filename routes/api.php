@@ -19,6 +19,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['force.json']], function () {
         Route::post('/reset-password', 'reset_password')->name('password.reset');
         Route::post('/logout', 'logout')->middleware('auth');
         Route::get('/me', 'me')->middleware('auth');
+        Route::get('/login/google', [AuthController::class, 'redirectToGoogle']);
+        Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->middleware('web');
     });
 
     // Email Verification Routes
@@ -78,13 +80,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['force.json']], function () {
         });
     });
 
-    Route::group(['prefix' => 'notifications', 'middleware' => 'auth'], function() {
+    Route::group(['prefix' => 'notifications', 'middleware' => 'auth'], function () {
         Route::controller(NotificationController::class)->group(function () {
             Route::get('', 'index');
             Route::post('mark-as-read', 'markAsRead');
         });
     });
 });
-Route::fallback(function (){
+Route::fallback(function () {
     abort(404, 'API resource not found');
 });

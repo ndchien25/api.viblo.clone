@@ -14,6 +14,7 @@ class PostSeeder extends Seeder
      */
     public function run(): void
     {
+        Post::truncate();
         $data = [];
         $userIds = User::pluck('id')->toArray();
         for($i = 0; $i < 100000; $i++) {
@@ -28,12 +29,11 @@ class PostSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now()
             ];
+            if ($i && $i%1000===0) {
+                Post::insert($data);
+                $data = [];
+            }
         }
-
-        $chunks = array_chunk($data, 5000);
-
-        foreach ($chunks as $chunk) {
-            Post::insert($chunk);
-        }
+        Post::insert($data);
     }
 }

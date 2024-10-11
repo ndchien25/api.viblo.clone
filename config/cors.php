@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://viblo.clone', 'https://api.viblo.clone'],
+    'allowed_origins' => ['https://viblo-clone.com', 'https://api.viblo-clone.com'],
 
     'allowed_origins_patterns' => [],
 
