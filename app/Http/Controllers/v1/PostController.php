@@ -8,6 +8,7 @@ use App\Http\Resources\PostResource;
 use App\Http\Services\PostService;
 use App\Http\Services\VoteService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -40,7 +41,12 @@ class PostController extends Controller
 
         $page = $validated['page'] ?? 1;
         $perPage = $validated['perPage'] ?? 20;
-
+        // if ($page == 1) {
+        //     $posts = Cache::remember('newest_posts_page_1', now()->addMinutes(10), function () use ($page, $perPage) {
+        //         return $this->postService->getNewest($page, $perPage);
+        //     });
+        // } else {
+        // }
         $posts = $this->postService->getNewest($page, $perPage);
         return response()->json([
             'data' => PostResource::collection($posts), // Dữ liệu bài viết
@@ -76,8 +82,7 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-        $validated = $request->only(['title', 'content', 'tags']);
-        $post = $this->postService->create($validated);
+        $post = $this->postService->create($request->validated());
         if ($post) {
             return response()->json([
                 'message' => 'Bài viết được tạo thành công!!',

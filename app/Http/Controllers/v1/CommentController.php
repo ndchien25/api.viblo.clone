@@ -42,8 +42,7 @@ class CommentController extends Controller
      */
     public function store(StoreCommentRequest $request, string $postId)
     {
-        $validated = $request->only(['post_id', 'type', 'content', 'parent_id']);
-        $comment = $this->commentService->create($validated);
+        $comment = $this->commentService->create($request->validated());
         if (!$comment) {
             return response()->json([], Response::HTTP_BAD_REQUEST);
         }

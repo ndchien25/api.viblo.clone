@@ -46,6 +46,6 @@ class PostService extends BaseService
 
     public function getNewest($page = 1, $perPage = 20)
     {
-        return Post::with(['user', 'tags'])->withCount('comments')->paginate($perPage, ['*'], 'page', $page);
+        return Post::with(['user', 'tags'])->withCount('comments')->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
     }
 }

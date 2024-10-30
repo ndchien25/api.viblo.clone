@@ -45,8 +45,8 @@ class AuthService extends BaseService
     public function register($payload = []): array
     {
         $payload['password'] = bcrypt($payload['password']);
+        unset($payload['c_password']);
         $user = User::create($payload);
-        
         event(new Registered($user));
         
         return [

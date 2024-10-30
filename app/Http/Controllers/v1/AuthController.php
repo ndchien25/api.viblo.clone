@@ -65,7 +65,7 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $request): JsonResponse
     {
-        $success = $this->authService->register($request->all());
+        $success = $this->authService->register($request->validated());
         return response()->json($success, Response::HTTP_OK);
     }
 
@@ -115,7 +115,7 @@ class AuthController extends Controller
      */
     public function reset_password(ResetPasswordRequest $request): JsonResponse
     {
-        $status = $this->authService->resetPassword($request->only('email', 'password', 'c_password', 'token'));
+        $status = $this->authService->resetPassword($request->validated());
         return $status === Password::PASSWORD_RESET ? response()->json([
             'message' => __($status)
         ], Response::HTTP_OK) : response()->json([
@@ -176,9 +176,10 @@ class AuthController extends Controller
                 return redirect((env('FRONTEND_URL') . '/newest'));
             } else {
                 $newUser = User::create([
-                    'username' => $user->name,
+                    'username' => $user->name. '-' .$user->id,
                     'display_name' => $user->name,
                     'email' => $user->email,
+                    'avatar' => $user->avatar,
                     'google_id' => $user->id,
                     'password' => bcrypt('password'),
                     'email_verified_at' => now()
